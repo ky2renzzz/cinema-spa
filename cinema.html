@@ -1,498 +1,789 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CINEMA — Онлайн Кинотеатр (Vidsrc HD)</title>
-  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в высоком качестве Vidsrc HD без рекламы.">
+  <title>CINEMAHD — Онлайн Кинотеатр</title>
+  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в высоком качестве без рекламы.">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <script>
-    // Global Ad-Block Trap: Override window.open in parent context
-    window.open = function() {
-      console.log('Blocked popup window attempt');
-      return null;
-    };
-
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-        },
-      },
-    }
-  </script>
-
   <style>
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .poster-img { background: #18181b; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#09090b;--bg2:#111113;--bg3:#18181b;--brd:#27272a;--txt:#fafafa;--txt2:#a1a1aa;--txt3:#71717a;--red:#e11d48;--red2:#be123c;--amber:#f59e0b;--green:#10b981}
+    html,body{background:var(--bg);color:var(--txt);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none} button{cursor:pointer;border:none;background:none;color:inherit;font:inherit}
+    ::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+    .navbar{position:sticky;top:0;z-index:100;background:rgba(9,9,11,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--brd)}
+    .nb{max-width:1400px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#e11d48,#f43f5e,#fb923c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 20px rgba(225,29,72,.4)}
+    .logo-text{font-weight:900;font-size:19px;letter-spacing:-.5px} .logo-text span{color:var(--red)}
+    .nav-tabs{display:flex;gap:4px;flex-shrink:0}
+    @media(max-width:600px){.nav-tabs{display:none}}
+    .nav-tab{padding:7px 15px;border-radius:10px;font-size:13px;font-weight:600;color:var(--txt3);transition:all .2s}
+    .nav-tab:hover{color:var(--txt);background:var(--bg3)} .nav-tab.active{background:var(--bg3);color:var(--txt);border:1px solid var(--brd)}
+    .sw{flex:1;max-width:440px;position:relative}
+    .si{width:100%;background:var(--bg3);border:1px solid var(--brd);border-radius:12px;padding:9px 34px 9px 36px;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s,box-shadow .2s}
+    .si:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,29,72,.15)} .si::placeholder{color:var(--txt3)}
+    .sico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:14px;pointer-events:none}
+    .sclr{position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--txt3);display:none;font-size:12px;padding:2px 4px;border-radius:4px}
+    .sclr:hover{color:var(--txt);background:var(--bg3)}
+    .sdrop{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--bg2);border:1px solid var(--brd);border-radius:16px;box-shadow:0 25px 60px rgba(0,0,0,.7);overflow:hidden;display:none;max-height:380px;overflow-y:auto;z-index:999}
+    .sitem{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(39,39,42,.5)}
+    .sitem:last-child{border-bottom:none} .sitem:hover{background:var(--bg3)}
+    .sitem img{width:38px;height:54px;object-fit:cover;border-radius:6px;background:var(--bg3);flex-shrink:0}
+    .sitem-n{font-weight:700;font-size:13px;color:var(--txt)} .sitem-s{font-size:11px;color:var(--txt2);margin-top:2px}
+    .fb{padding:9px 11px;border-radius:10px;background:var(--bg3);border:1px solid var(--brd);color:var(--txt3);transition:all .2s;position:relative;flex-shrink:0;font-size:16px}
+    .fb:hover{color:var(--txt);border-color:var(--red)}
+    .fbadge{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:17px;height:17px;border-radius:50%;display:none;align-items:center;justify-content:center}
+    .main{max-width:1400px;margin:0 auto;padding:24px 20px 80px}
+    .hero{position:relative;width:100%;height:460px;border-radius:22px;overflow:hidden;margin-bottom:36px;border:1px solid var(--brd)}
+    @media(max-width:700px){.hero{height:320px;border-radius:14px}}
+    .hero-img{width:100%;height:100%;object-fit:cover;transition:transform 8s ease}
+    .hero:hover .hero-img{transform:scale(1.04)}
+    .ho1{position:absolute;inset:0;background:linear-gradient(to top,rgba(9,9,11,1) 0%,rgba(9,9,11,.7) 40%,rgba(9,9,11,.1) 100%)}
+    .ho2{position:absolute;inset:0;background:linear-gradient(to right,rgba(9,9,11,.9) 0%,rgba(9,9,11,.4) 60%,transparent 100%)}
+    .hc{position:absolute;bottom:0;left:0;right:0;padding:28px 36px;z-index:10}
+    @media(max-width:700px){.hc{padding:18px 18px}}
+    .hbadges{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+    .badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.4px}
+    .b-red{background:var(--red);color:#fff} .b-dark{background:var(--bg3);color:var(--txt2);border:1px solid var(--brd)} .b-green{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3)}
+    .htitle{font-size:clamp(22px,5vw,44px);font-weight:900;line-height:1.1;letter-spacing:-1px;color:#fff;margin-bottom:8px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+    .hdesc{font-size:14px;color:rgba(250,250,250,.75);max-width:540px;line-height:1.6;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .hbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 26px;background:var(--red);color:#fff;font-size:14px;font-weight:700;border-radius:13px;transition:all .25s;box-shadow:0 8px 28px rgba(225,29,72,.4)}
+    .hbtn:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 12px 36px rgba(225,29,72,.5)}
+    .sec-hdr{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--brd);padding-bottom:14px;margin-bottom:22px}
+    .sec-lft{display:flex;align-items:center;gap:8px}
+    .sec-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+    .sec-ttl{font-size:21px;font-weight:800;letter-spacing:-.4px}
+    .gf{display:flex;gap:6px;overflow-x:auto} .gf::-webkit-scrollbar{display:none}
+    .gbtn{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:600;color:var(--txt3);border:1px solid var(--brd);background:var(--bg3);transition:all .2s;white-space:nowrap;flex-shrink:0}
+    .gbtn:hover{color:var(--txt);border-color:rgba(225,29,72,.5)} .gbtn.active{background:var(--red);color:#fff;border-color:var(--red)}
+    .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:18px}
+    @media(max-width:500px){.mgrid{grid-template-columns:repeat(2,1fr);gap:10px}}
+    .mc{background:var(--bg2);border:1px solid var(--brd);border-radius:15px;overflow:hidden;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),border-color .2s,box-shadow .3s}
+    .mc:hover{transform:translateY(-6px);border-color:rgba(225,29,72,.5);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+    .cp{position:relative;aspect-ratio:2/3;overflow:hidden;background:var(--bg3)}
+    .cp img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+    .mc:hover .cp img{transform:scale(1.08)}
+    .crat{position:absolute;top:8px;left:8px;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border:1px solid rgba(245,158,11,.3);padding:3px 7px;border-radius:6px;font-size:11px;font-weight:800;color:var(--amber)}
+    .ctype{position:absolute;top:8px;right:8px;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border:1px solid var(--brd);padding:2px 6px;border-radius:5px;font-size:9px;font-weight:800;color:var(--txt2);letter-spacing:.4px}
+    .cfav{position:absolute;bottom:8px;right:8px;width:30px;height:30px;border-radius:8px;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;color:var(--txt3);font-size:13px;transition:all .2s;z-index:2}
+    .cfav:hover,.cfav.active{color:var(--red);border-color:var(--red);background:rgba(225,29,72,.2)}
+    .ci{padding:11px} .ctitle{font-weight:700;font-size:13px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;transition:color .2s}
+    .mc:hover .ctitle{color:var(--red)} .csub{font-size:11px;color:var(--txt3)}
+    .ld{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:80px 0;color:var(--txt2);font-size:14px}
+    .sp{width:34px;height:34px;border:3px solid var(--brd);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .es{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--txt3)}
+    .es-ico{font-size:46px;margin-bottom:14px;opacity:.35} .es-ttl{font-size:17px;font-weight:700;color:var(--txt2);margin-bottom:6px} .es-sub{font-size:13px}
+    .mo{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.97);backdrop-filter:blur(24px);display:none;align-items:center;justify-content:center;padding:14px;overflow-y:auto}
+    .mo.open{display:flex}
+    .mob{position:fixed;inset:0;z-index:0}
+    .mbox{position:relative;width:100%;max-width:980px;background:var(--bg2);border:1px solid var(--brd);border-radius:22px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.8);z-index:1;display:flex;flex-direction:column;max-height:calc(100vh - 28px)}
+    .mhdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(24,24,27,.8);border-bottom:1px solid var(--brd);flex-shrink:0;gap:12px}
+    .mhdr-l{display:flex;align-items:center;gap:11px;min-width:0}
+    .mico{width:36px;height:36px;flex-shrink:0;background:rgba(225,29,72,.15);border:1px solid rgba(225,29,72,.3);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:15px}
+    .mttl{font-weight:800;font-size:15px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mmeta{font-size:11px;color:var(--txt3);margin-top:2px;display:flex;align-items:center;gap:5px}
+    .mmeta-g{color:var(--green);font-weight:700}
+    .macts{display:flex;align-items:center;gap:7px;flex-shrink:0}
+    .mbtn{width:34px;height:34px;border-radius:9px;background:var(--bg3);border:1px solid var(--brd);color:var(--txt3);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
+    .mbtn:hover{color:var(--txt);border-color:rgba(225,29,72,.5)}
+    .mbtn.fa{color:var(--red);border-color:var(--red);background:rgba(225,29,72,.1)}
+    .mbtn.cl:hover{border-color:var(--red);background:rgba(225,29,72,.1);color:var(--red)}
+    .pa{position:relative;aspect-ratio:16/9;background:#000;flex-shrink:0;overflow:hidden}
+    .pa:fullscreen, .pa:-webkit-full-screen, .pa:-moz-full-screen{width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;aspect-ratio:auto!important;border-radius:0!important;background:#000!important}
+    .pa:fullscreen #player-iframe, .pa:-webkit-full-screen #player-iframe{width:100vw!important;height:100vh!important;border-radius:0!important}
+    /* GUARD: shown before user clicks — prevents auto-ad-redirect */
+    .guard{position:absolute;inset:0;z-index:5;background:linear-gradient(135deg,rgba(9,9,11,.96),rgba(9,9,11,.92));display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .guard-inner{display:flex;flex-direction:column;align-items:center;gap:14px;color:#fff;text-align:center;padding:20px}
+    .guard-icon{width:68px;height:68px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 40px rgba(225,29,72,.55);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(225,29,72,.55)}50%{box-shadow:0 0 65px rgba(225,29,72,.8)}}
+    .guard-title{font-size:16px;font-weight:800} .guard-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:-6px}
+    #player-iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+    .srv-bar{display:flex;align-items:center;gap:6px;padding:9px 18px;background:var(--bg3);border-bottom:1px solid var(--brd);overflow-x:auto;flex-shrink:0}
+    .srv-lbl{font-size:12px;font-weight:700;color:var(--txt2);flex-shrink:0;margin-right:4px}
+    .srv-btn{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:var(--bg2);border:1px solid var(--brd);color:var(--txt2);white-space:nowrap;transition:all .2s;cursor:pointer}
+    .srv-btn:hover{color:var(--txt);border-color:var(--red)}
+    .srv-btn.active{background:var(--red);border-color:var(--red);color:#fff}
+    .sc{padding:14px 18px;background:var(--bg2);border-top:1px solid var(--brd);display:none;gap:10px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+    .sc.vis{display:flex} .slbl{font-size:12px;font-weight:700;color:var(--txt2);flex-shrink:0}
+    .ssel{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:5px 11px;font-size:13px;color:var(--txt);outline:none;cursor:pointer;transition:border-color .2s}
+    .ssel:focus{border-color:var(--red)}
+    .epbtn{padding:5px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--txt2);transition:all .2s}
+    .epbtn:hover{border-color:var(--red);color:var(--txt)} .epbtn.active{background:var(--red);border-color:var(--red);color:#fff}
+    .mdesc{padding:14px 18px;border-top:1px solid var(--brd);font-size:13px;color:var(--txt2);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0}
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--bg3);border:1px solid var(--brd);border-radius:11px;padding:11px 18px;font-size:13px;font-weight:600;color:var(--txt);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none;white-space:nowrap;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
   </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen selection:bg-red-600/30 selection:text-red-200">
+<body>
 
   <!-- NAVBAR -->
-  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 gap-4">
-        
-        <!-- Logo -->
-        <div class="flex items-center gap-6">
-          <a href="#" onclick="switchTab('popular')" class="flex items-center gap-2 group">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
-              <i data-lucide="play" class="w-5 h-5 text-white fill-white ml-0.5"></i>
-            </div>
-            <span class="font-extrabold text-xl text-white tracking-wide">CINEMA<span class="text-red-500">HD</span></span>
-          </a>
-
-          <nav class="hidden md:flex items-center space-x-1">
-            <button onclick="switchTab('popular')" id="nav-popular" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold bg-zinc-800 text-white shadow-sm">Популярное</button>
-            <button onclick="switchTab('top250')" id="nav-top250" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white">Топ 250</button>
-            <button onclick="switchTab('series')" id="nav-series" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white">Сериалы</button>
-          </nav>
-        </div>
-
-        <!-- Live Search Bar -->
-        <div class="flex-1 max-w-md relative">
-          <div class="relative">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Поиск фильмов и сериалов..."
-              oninput="handleSearchDebounce(this.value)"
-              onfocus="if(this.value.trim()) document.getElementById('search-dropdown').classList.remove('hidden')"
-              class="w-full bg-zinc-900 text-zinc-100 text-sm pl-10 pr-9 py-2.5 rounded-xl border border-zinc-800 focus:outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-zinc-500"
-            />
-            <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white">
-              <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-          </div>
-
-          <!-- Dropdown search results -->
-          <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden z-50 max-h-96 overflow-y-auto divide-y divide-zinc-800/60">
-          </div>
-        </div>
-
-        <!-- Favorites Button -->
-        <div class="flex items-center gap-2">
-          <button onclick="switchTab('favorites')" id="nav-favorites" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white relative transition-all" title="Избранное">
-            <i data-lucide="heart" class="w-4.5 h-4.5"></i>
-            <span id="fav-count-badge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center">0</span>
-          </button>
-        </div>
-
+  <nav class="navbar">
+    <div class="nb">
+      <div class="logo" onclick="switchTab('popular')">
+        <div class="logo-icon">▶</div>
+        <div class="logo-text">CINEMA<span>HD</span></div>
       </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-popular" onclick="switchTab('popular')">Популярное</button>
+        <button class="nav-tab" id="tab-top250" onclick="switchTab('top250')">Топ 250</button>
+        <button class="nav-tab" id="tab-series" onclick="switchTab('series')">Сериалы</button>
+      </div>
+      <div class="sw">
+        <span class="sico">🔍</span>
+        <input type="text" id="search-input" class="si" placeholder="Поиск фильмов и сериалов..." oninput="handleSearch(this.value)" autocomplete="off" spellcheck="false">
+        <button class="sclr" id="search-clear" onclick="clearSearch()">✕</button>
+        <div class="sdrop" id="search-dropdown"></div>
+      </div>
+      <button class="fb" id="tab-favorites" onclick="switchTab('favorites')" title="Избранное">♥<span class="fbadge" id="fav-badge"></span></button>
     </div>
-  </header>
+  </nav>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
-    
-    <!-- Hero Banner -->
-    <div id="hero-banner" class="relative w-full h-[450px] sm:h-[500px] rounded-3xl overflow-hidden mb-10 shadow-2xl border border-zinc-800/80 group">
-      <img id="hero-img" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Hero">
-      <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent"></div>
-      <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/70 to-transparent"></div>
-      
-      <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-10 max-w-3xl z-10 space-y-4">
-        <div class="flex items-center gap-2">
-          <span class="px-3 py-1 rounded-md bg-red-600 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Vidsrc HD
-          </span>
-          <span id="hero-year" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 text-xs font-semibold">2014</span>
-          <span id="hero-rating" class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">★ 8.6</span>
+  <!-- MAIN -->
+  <main class="main">
+    <!-- HERO -->
+    <div class="hero">
+      <img id="hero-img" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" class="hero-img" alt="">
+      <div class="ho1"></div>
+      <div class="ho2"></div>
+      <div class="hc">
+        <div class="hbadges">
+          <span class="badge b-red">▶ HD</span>
+          <span class="badge b-dark" id="hero-year">2024</span>
+          <span class="badge b-green" id="hero-rating">★ 8.0</span>
         </div>
-        <h1 id="hero-title" class="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-md">Интерстеллар</h1>
-        <p id="hero-desc" class="text-sm text-zinc-300 line-clamp-3 leading-relaxed">Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в путешествие.</p>
-        
-        <div class="flex items-center gap-3 pt-2">
-          <button id="hero-play-btn" onclick="openHeroMovie()" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-sm font-bold rounded-2xl shadow-xl shadow-red-600/40 flex items-center gap-2 transition-all transform hover:scale-105">
-            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть в Vidsrc HD
-          </button>
-        </div>
+        <h1 class="htitle" id="hero-title">Добро пожаловать</h1>
+        <p class="hdesc" id="hero-desc">Смотрите лучшие фильмы и сериалы онлайн в высоком качестве.</p>
+        <button class="hbtn" onclick="openHeroMovie()">▶ &nbsp;Смотреть</button>
       </div>
     </div>
 
-    <!-- Catalog Section Header & Filters -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4 mb-6">
-      <div class="flex items-center gap-2">
-        <i data-lucide="film" class="w-5 h-5 text-red-500"></i>
-        <h2 id="section-title" class="text-2xl font-extrabold text-white">Каталог фильмов и сериалов</h2>
+    <!-- SECTION HEADER -->
+    <div class="sec-hdr">
+      <div class="sec-lft">
+        <div class="sec-dot"></div>
+        <h2 class="sec-ttl" id="section-title">Каталог</h2>
       </div>
-      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="genre-filters">
-        <button onclick="filterGenre('all')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white" data-genre="all">Все жанры</button>
-        <button onclick="filterGenre('Фантастика')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Фантастика">Фантастика</button>
-        <button onclick="filterGenre('Боевик')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Боевик">Боевик</button>
-        <button onclick="filterGenre('Драма')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Драма">Драма</button>
-        <button onclick="filterGenre('Комедия')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Комедия">Комедия</button>
+      <div class="gf" id="genre-filters">
+        <button class="gbtn active" data-genre="all" onclick="setGenre('all')">Все</button>
+        <button class="gbtn" data-genre="Фантастика" onclick="setGenre('Фантастика')">Фантастика</button>
+        <button class="gbtn" data-genre="Боевик" onclick="setGenre('Боевик')">Боевик</button>
+        <button class="gbtn" data-genre="Драма" onclick="setGenre('Драма')">Драма</button>
+        <button class="gbtn" data-genre="Комедия" onclick="setGenre('Комедия')">Комедия</button>
+        <button class="gbtn" data-genre="Триллер" onclick="setGenre('Триллер')">Триллер</button>
+        <button class="gbtn" data-genre="Мультфильм" onclick="setGenre('Мультфильм')">Мультфильм</button>
       </div>
     </div>
 
-    <!-- Grid Container -->
-    <div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+    <!-- GRID -->
+    <div class="mgrid" id="movie-grid">
+      <div class="ld"><div class="sp"></div>Загрузка каталога...</div>
     </div>
-
   </main>
 
-  <!-- VIDSRC HD PLAYER MODAL -->
-  <div id="player-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 lg:p-6">
-    <!-- Backdrop click to close -->
-    <div class="fixed inset-0" onclick="closePlayer()"></div>
-
-    <div class="relative bg-zinc-950 border border-zinc-800/80 rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl z-10 flex flex-col my-auto max-h-[95vh]">
-      
-      <!-- Modal Header (Clean & Minimal) -->
-      <div class="p-4 sm:p-5 flex items-center justify-between bg-zinc-900/80 border-b border-zinc-800">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center flex-shrink-0">
-            <i data-lucide="play" class="w-5 h-5 fill-red-500 ml-0.5"></i>
-          </div>
-          <div class="min-w-0">
-            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Интерстеллар</h3>
-            <div class="flex items-center gap-2 text-xs text-zinc-400">
-              <span id="modal-year">2014</span>
-              <span>•</span>
-              <span class="text-emerald-400 font-semibold flex items-center gap-1">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Vidsrc HD (Защита от рекламы и новых вкладок)
-              </span>
-            </div>
+  <!-- PLAYER MODAL -->
+  <div class="mo" id="player-modal">
+    <div class="mob" onclick="closePlayer()"></div>
+    <div class="mbox">
+      <div class="mhdr">
+        <div class="mhdr-l">
+          <div class="mico">▶</div>
+          <div style="min-width:0">
+            <div class="mttl" id="modal-title">Загрузка...</div>
+            <div class="mmeta"><span id="modal-year">2024</span><span>•</span><span class="mmeta-g">✓ Защита от рекламы</span></div>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button id="modal-fav-btn" onclick="toggleCurrentFavorite()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
-            <i data-lucide="heart" class="w-4 h-4"></i>
-          </button>
-          <button onclick="closePlayer()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-red-950 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
+        <div class="macts">
+          <button class="mbtn" id="modal-fs-btn" onclick="toggleFullscreen()" title="Во весь экран (F)">⛶</button>
+          <button class="mbtn" id="modal-fav-btn" onclick="toggleCurrentFavorite()" title="Избранное">♥</button>
+          <button class="mbtn cl" onclick="closePlayer()" title="Закрыть (Esc)">✕</button>
         </div>
       </div>
 
-      <!-- Single Video Player Screen (Strict Sandbox Blocks All Popups & New Tabs) -->
-      <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
-        <iframe 
-          id="player-iframe" 
-          src="" 
-          class="w-full h-full border-0" 
-          allowfullscreen 
-          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-          referrerpolicy="no-referrer"
-        ></iframe>
+      <!-- SERVER SELECTOR -->
+      <div class="srv-bar" id="server-bar">
+        <span class="srv-lbl">Сервер:</span>
+        <button class="srv-btn active" onclick="setProvider(0)">⚡ Сервер 1 (Full HD + Виджеты)</button>
+        <button class="srv-btn" onclick="setProvider(1)">🎬 Сервер 2 (Vidsrc CC)</button>
+        <button class="srv-btn" onclick="setProvider(2)">🌐 Сервер 3 (Vidsrc XYZ)</button>
+        <button class="srv-btn" onclick="setProvider(3)">⚡ Сервер 4 (AutoEmbed)</button>
       </div>
 
-      <!-- Description -->
-      <div class="p-5 bg-zinc-950 border-t border-zinc-900">
-        <p id="modal-description" class="text-xs text-zinc-300 leading-relaxed line-clamp-3">Описание загружается...</p>
+      <!-- PLAYER AREA -->
+      <div class="pa" id="player-area">
+        <!-- Guard: user must click once before iframe loads — prevents instant ad redirect -->
+        <div class="guard" id="player-guard" onclick="activatePlayer()">
+          <div class="guard-inner">
+            <div class="guard-icon">▶</div>
+            <div class="guard-title" id="guard-title">Нажмите для просмотра</div>
+            <div class="guard-sub">Один клик для запуска плеера</div>
+          </div>
+        </div>
+        <iframe id="player-iframe" src="about:blank"
+          allowfullscreen="true"
+          webkitallowfullscreen="true"
+          mozallowfullscreen="true"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
+          referrerpolicy="origin"
+          title="Video Player"></iframe>
       </div>
 
+      <!-- Series controls -->
+      <div class="sc" id="series-controls">
+        <span class="slbl">Сезон:</span>
+        <select class="ssel" id="season-select" onchange="onSeasonChange()"></select>
+        <span class="slbl">Эпизод:</span>
+        <div id="ep-list" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+      </div>
+
+      <div class="mdesc" id="modal-desc">Описание загружается...</div>
     </div>
   </div>
 
-  <script>
-    const API_KEY = '8c86825c-07a6-4f82-a4db-b09f10e35965';
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
-    function fixPoster(url) {
-      if (!url) return 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=600&auto=format&fit=crop';
+  <script>
+    // ANTI-AD PROTECTION: neutralize popup windows and top-frame redirects
+    (function () {
+      try {
+        window.open = function (url) {
+          if (!url || url === 'about:blank') return null;
+          console.warn('[AD BLOCKED] popup attempt to:', url);
+          return { closed: false, focus: () => {}, close: () => {}, location: { href: '' } };
+        };
+      } catch (e) {}
+
+      try {
+        Object.defineProperty(window, 'top', {
+          get: function () { return window; },
+          set: function () {},
+          configurable: true
+        });
+      } catch (e) {}
+    })();
+
+    const KP_KEY = '8c86825c-07a6-4f82-a4db-b09f10e35965';
+
+    // MULTI-PROVIDER SYSTEM (VidLink Pro -> Vidsrc CC -> Vidsrc XYZ -> AutoEmbed)
+    const PROVIDERS = [
+      // 0: VidLink Pro (Full UI widgets: timeline scrub, volume, audio tracks, subtitles, quality selector, native fullscreen)
+      (imdb, type, s, e, kpId) => {
+        const id = imdb || kpId;
+        return type === 'series'
+          ? `https://vidlink.pro/tv/${id}/${s}/${e}`
+          : `https://vidlink.pro/movie/${id}`;
+      },
+      // 1: Vidsrc CC
+      (imdb, type, s, e, kpId) => {
+        const id = imdb || kpId;
+        return type === 'series'
+          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.cc/v2/embed/movie/${id}`;
+      },
+      // 2: Vidsrc XYZ
+      (imdb, type, s, e, kpId) => {
+        const idParam = imdb ? `imdb=${imdb}` : `kp=${kpId}`;
+        return type === 'series'
+          ? `https://vidsrc.xyz/embed/tv?${idParam}&season=${s}&episode=${e}`
+          : `https://vidsrc.xyz/embed/movie?${idParam}`;
+      },
+      // 3: AutoEmbed
+      (imdb, type, s, e, kpId) => {
+        const id = imdb || kpId;
+        return type === 'series'
+          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
+          : `https://player.autoembed.cc/embed/movie/${id}`;
+      }
+    ];
+    let providerIdx = 0;
+
+    function setProvider(idx) {
+      providerIdx = idx;
+      document.querySelectorAll('.srv-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+      if (playerActive) {
+        loadEmbed();
+      }
+    }
+
+    function proxyPoster(url) {
+      if (!url) return 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=400&auto=format&fit=crop';
       if (url.includes('unsplash.com')) return url;
       return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=400&output=jpg`;
     }
 
-    let catalogMovies = [];
+    function capFirst(s) {
+      return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+    }
+
+    let catalog = [];
     let currentTab = 'popular';
     let currentGenre = 'all';
     let currentMovie = null;
-    let favorites = JSON.parse(localStorage.getItem('cinema_favs') || '[]');
-    let searchDebounceTimer = null;
+    let currentSeason = 1;
+    let currentEpisode = 1;
+    let playerActive = false;
+    let favorites = JSON.parse(localStorage.getItem('cinema_favs_v2') || '[]');
+    let srchTimer = null;
+    let toastTimer = null;
 
-    // POPULAR CURATED MOVIES WITH VALID IMDB IDS
-    const BASE_MOVIES = [
-      { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', type: 'films', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в путешествие.' },
-      { id: 1143242, imdbId: 'tt11126994', nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg'), genre: 'Боевик', type: 'series', description: 'История разворачивается в утопическом Пилтовере и подземном Зауне и рассказывает о становлении двух сестер-чемпионов.' },
-      { id: 4664634, imdbId: 'tt15398776', nameRu: 'Оппенгеймер', year: 2023, rating: 8.2, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4664634.jpg'), genre: 'Драма', type: 'films', description: 'История жизни американского физика Роберта Оппенгеймера, который стоял во главе первых разработок ядерного оружия.' },
-      { id: 4444572, imdbId: 'tt15239678', nameRu: 'Дюна: Часть вторая', year: 2024, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4444572.jpg'), genre: 'Фантастика', type: 'films', description: 'Герцог Пол Атрейдес объединяется с Чани и фременами, чтобы отомстить заговорщикам, уничтожившим его семью.' },
-      { id: 1227954, imdbId: 'tt13443470', nameRu: 'Уэнсдэй', year: 2022, rating: 8.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1227954.jpg'), genre: 'Фэнтези', type: 'series', description: 'Уэнсдэй Аддамс поступает в академию «Невермор», где пытается освоить свои экстрасенсорные способности и расследовать убийства.' },
-      { id: 404900, imdbId: 'tt0903747', nameRu: 'Во все тяжкие', year: 2008, rating: 8.9, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg'), genre: 'Драма', type: 'series', description: 'Учитель химии Уолтер Уайт узнает о смертельном диагнозе и начинает производить метамфетамин ради будущего семьи.' },
-      { id: 464963, imdbId: 'tt0944947', nameRu: 'Игра престолов', year: 2011, rating: 9.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg'), genre: 'Фэнтези', type: 'series', description: 'Несколько могущественных семейств Вестероса сражаются за Железный трон в канун наступления многолетней зимы.' },
-      { id: 301, imdbId: 'tt0133093', nameRu: 'Матрица', year: 1999, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/301.jpg'), genre: 'Фантастика', type: 'films', description: 'Программист Нео узнает страшную правду о том, что окружающая его реальность — это иллюзия.' },
-      { id: 1236067, imdbId: 'tt9362722', nameRu: 'Человек-паук: Паутина вселенных', year: 2023, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1236067.jpg'), genre: 'Мультфильм', type: 'films', description: 'Майлз Моралес отправляется в путешествие по мультивселенной.' },
-      { id: 685246, imdbId: 'tt2861424', nameRu: 'Рик и Морти', year: 2013, rating: 8.9, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/685246.jpg'), genre: 'Комедия', type: 'series', description: 'Безумные межгалактические и межизмерительные приключения деда-ученого Рика и его внука Морти.' },
-      { id: 361, imdbId: 'tt0137523', nameRu: 'Бойцовский клуб', year: 1999, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/361.jpg'), genre: 'Драма', type: 'films', description: 'Сотрудник страховой компании встречает продавца мыла Тайлера Дёрдена.' },
-      { id: 251733, imdbId: 'tt0499549', nameRu: 'Аватар', year: 2009, rating: 8.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/251733.jpg'), genre: 'Фантастика', type: 'films', description: 'Бывший морпех Джейк Салли на планете Пандора оказывается в центре битвы за выживание.' }
+    // CURATED FALLBACK DATA (with confirmed IMDb IDs for flawless playback)
+    const FALLBACK = [
+      { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', type: 'films', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в космическое путешествие.' },
+      { id: 1143242, imdbId: 'tt11126994', nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg'), genre: 'Боевик', type: 'series', description: 'История разворачивается в утопическом Пилтовере и подземном Зауне и рассказывает о становлении двух сестер-чемпионов.' },
+      { id: 4664634, imdbId: 'tt15398776', nameRu: 'Оппенгеймер', year: 2023, rating: 8.2, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4664634.jpg'), genre: 'Драма', type: 'films', description: 'История жизни американского физика Роберта Оппенгеймера, который стоял во главе Манхэттенского проекта.' },
+      { id: 4444572, imdbId: 'tt15239678', nameRu: 'Дюна: Часть вторая', year: 2024, rating: 8.5, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4444572.jpg'), genre: 'Фантастика', type: 'films', description: 'Пол Атрейдес объединяется с Чани и фременами, чтобы отомстить заговорщикам, уничтожившим его семью.' },
+      { id: 1227954, imdbId: 'tt13443470', nameRu: 'Уэнсдэй', year: 2022, rating: 8.0, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1227954.jpg'), genre: 'Фэнтези', type: 'series', description: 'Уэнсдэй Аддамс поступает в академию «Невермор», где осваивает экстрасенсорные способности и расследует тайны.' },
+      { id: 404900, imdbId: 'tt0903747', nameRu: 'Во все тяжкие', year: 2008, rating: 8.9, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg'), genre: 'Драма', type: 'series', description: 'Учитель химии Уолтер Уайт узнает о смертельном диагнозе и начинает производить метамфетамин ради будущего семьи.' },
+      { id: 464963, imdbId: 'tt0944947', nameRu: 'Игра престолов', year: 2011, rating: 9.0, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg'), genre: 'Фэнтези', type: 'series', description: 'Несколько могущественных семейств Вестероса сражаются за Железный трон в канун наступления долгой зимы.' },
+      { id: 301, imdbId: 'tt0133093', nameRu: 'Матрица', year: 1999, rating: 8.5, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/301.jpg'), genre: 'Фантастика', type: 'films', description: 'Хакер Нео узнает страшную правду о том, что окружающая его реальность — это иллюзия.' },
+      { id: 1236067, imdbId: 'tt9362722', nameRu: 'Человек-паук: Паутина вселенных', year: 2023, rating: 8.5, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1236067.jpg'), genre: 'Мультфильм', type: 'films', description: 'Майлз Моралес отправляется в головокружительное путешествие по мультивселенной.' },
+      { id: 685246, imdbId: 'tt2861424', nameRu: 'Рик и Морти', year: 2013, rating: 8.9, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/685246.jpg'), genre: 'Комедия', type: 'series', description: 'Безумные межгалактические приключения гениального деда-ученого Рика и его внука Морти.' },
+      { id: 361, imdbId: 'tt0137523', nameRu: 'Бойцовский клуб', year: 1999, rating: 8.6, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/361.jpg'), genre: 'Драма', type: 'films', description: 'Сотрудник страховой компании встречает неординарного торговца мылом Тайлера Дёрдена.' },
+      { id: 251733, imdbId: 'tt0499549', nameRu: 'Аватар', year: 2009, rating: 8.0, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/251733.jpg'), genre: 'Фантастика', type: 'films', description: 'Бывший морпех Джейк Салли на планете Пандора оказывается в эпицентре борьбы за выживание.' },
+      { id: 326, imdbId: 'tt0109830', nameRu: 'Форрест Гамп', year: 1994, rating: 9.0, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/326.jpg'), genre: 'Драма', type: 'films', description: 'Трогательная история простого и доброго человека, ставшего свидетелем ключевых событий эпохи.' },
+      { id: 342, imdbId: 'tt0468569', nameRu: 'Тёмный рыцарь', year: 2008, rating: 8.9, poster: proxyPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/342.jpg'), genre: 'Боевик', type: 'films', description: 'Бэтмен поднимает ставки в войне с криминалом и сталкивается с криминальным гением — Джокером.' }
     ];
 
-    // FETCH MOVIES
-    async function loadInitialCatalog(tab = 'popular') {
+    // LOAD CATALOG FROM KINOPOISK OR FALLBACK
+    async function loadCatalog(tab = 'popular') {
       const grid = document.getElementById('movie-grid');
-      grid.innerHTML = `
-        <div class="col-span-full py-20 text-center text-zinc-400 flex flex-col items-center justify-center gap-3">
-          <div class="w-10 h-10 border-3 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-sm font-semibold">Загрузка каталога Кинопоиска...</span>
-        </div>
-      `;
+      grid.innerHTML = '<div class="ld"><div class="sp"></div>Загрузка каталога...</div>';
 
-      let collectionType = 'TOP_POPULAR_ALL';
-      if (tab === 'top250') collectionType = 'TOP_250_MOVIES';
-      else if (tab === 'series') collectionType = 'POPULAR_SERIES';
+      let tp = 'TOP_POPULAR_ALL';
+      if (tab === 'top250') tp = 'TOP_250_MOVIES';
+      else if (tab === 'series') tp = 'POPULAR_SERIES';
 
       try {
-        const res = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/films/collections?type=${collectionType}&page=1`, {
-          headers: { 'X-API-KEY': API_KEY }
+        const res = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/films/collections?type=${tp}&page=1`, {
+          headers: { 'X-API-KEY': KP_KEY },
+          signal: AbortSignal.timeout(8000)
         });
         if (res.ok) {
-          const data = await res.json();
-          if (data.items && data.items.length > 0) {
-            catalogMovies = data.items.map(item => ({
-              id: item.kinopoiskId || item.filmId,
-              imdbId: item.imdbId,
-              nameRu: item.nameRu || item.nameEn || 'Фильм',
-              year: item.year || 2024,
-              rating: item.ratingKinopoisk || item.ratingImdb || item.rating || 8.0,
-              poster: fixPoster(item.posterUrlPreview || item.posterUrl),
-              genre: item.genres && item.genres[0] ? item.genres[0].genre : 'Кино',
-              type: item.type === 'TV_SERIES' || item.type === 'MINI_SERIES' || tab === 'series' ? 'series' : 'films',
-              description: item.description || 'Смотреть онлайн бесплатно в высоком качестве.'
+          const d = await res.json();
+          if (d.items && d.items.length > 0) {
+            catalog = d.items.map(it => ({
+              id: it.kinopoiskId || it.filmId,
+              imdbId: it.imdbId,
+              nameRu: it.nameRu || it.nameEn || it.nameOriginal || 'Фильм',
+              year: it.year || 2024,
+              rating: parseFloat(it.ratingKinopoisk || it.ratingImdb || it.rating || 8.0).toFixed(1),
+              poster: proxyPoster(it.posterUrlPreview || it.posterUrl),
+              genre: it.genres && it.genres[0] ? capFirst(it.genres[0].genre) : 'Кино',
+              type: (it.type === 'TV_SERIES' || it.type === 'MINI_SERIES' || tab === 'series') ? 'series' : 'films',
+              description: it.description || 'Смотреть онлайн бесплатно в высоком качестве HD.'
             }));
           }
         }
-      } catch (err) {
-        console.warn('API catalog fallback', err);
+      } catch (e) {
+        console.warn('KP API unavailable, using fallback', e.message);
       }
 
-      if (catalogMovies.length === 0) {
-        catalogMovies = [...BASE_MOVIES];
+      if (!catalog.length) {
+        catalog = [...FALLBACK];
       }
 
-      currentMovie = catalogMovies[0];
-      renderCatalog();
+      currentMovie = catalog[0];
+      if (currentMovie) updateHero(currentMovie);
+      renderGrid();
     }
 
-    // RENDER CATALOG GRID
-    function renderCatalog() {
+    // UPDATE HERO BANNER
+    function updateHero(m) {
+      if (!m) return;
+      document.getElementById('hero-title').textContent = m.nameRu;
+      document.getElementById('hero-year').textContent = m.year || '2024';
+      document.getElementById('hero-rating').textContent = '★ ' + m.rating;
+      document.getElementById('hero-desc').textContent = m.description || 'Смотреть онлайн в отличном качестве HD.';
+      if (m.poster && !m.poster.includes('unsplash')) {
+        const img = new Image();
+        img.onload = () => { document.getElementById('hero-img').src = m.poster; };
+        img.src = m.poster;
+      }
+    }
+
+    // RENDER MOVIE GRID
+    function renderGrid() {
       const grid = document.getElementById('movie-grid');
-      let filtered = catalogMovies;
+      let items = catalog;
 
       if (currentTab === 'favorites') {
-        filtered = catalogMovies.filter(m => favorites.includes(m.id));
+        const all = [...FALLBACK, ...catalog];
+        items = all.filter((m, i, arr) => favorites.includes(m.id) && arr.findIndex(x => x.id === m.id) === i);
       }
 
       if (currentGenre !== 'all') {
-        filtered = filtered.filter(m => m.genre && m.genre.toLowerCase().includes(currentGenre.toLowerCase()));
+        items = items.filter(m => m.genre && m.genre.toLowerCase().includes(currentGenre.toLowerCase()));
       }
 
-      grid.innerHTML = filtered.map(m => {
+      if (!items.length) {
+        grid.innerHTML = `
+          <div class="es">
+            <div class="es-ico">🎬</div>
+            <div class="es-ttl">Ничего не найдено</div>
+            <div class="es-sub">Попробуйте выбрать другой жанр или категорию</div>
+          </div>
+        `;
+        updateFavBadge();
+        return;
+      }
+
+      grid.innerHTML = items.map(m => {
         const isFav = favorites.includes(m.id);
+        const tag = m.type === 'series' ? 'СЕРИАЛ' : 'ФИЛЬМ';
         return `
-          <div onclick="openPlayerByMovieId(${m.id})" class="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-red-500/50 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 shadow-lg flex flex-col justify-between">
-            <div class="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
-              <img src="${m.poster}" alt="${m.nameRu}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 poster-img" loading="lazy">
-              <div class="absolute top-3 left-3 bg-zinc-950/80 backdrop-blur-md px-2 py-1 rounded-lg border border-zinc-700/60 text-xs font-extrabold text-amber-400 shadow-md">
-                ★ ${m.rating}
-              </div>
-              <button onclick="event.stopPropagation(); toggleFavorite(${m.id})" class="absolute bottom-3 right-3 p-2 rounded-xl backdrop-blur-md border ${isFav ? 'bg-red-950 border-red-700 text-red-400' : 'bg-zinc-950/80 hover:bg-zinc-800 border-zinc-700 text-zinc-300'}">
-                <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}"></i>
-              </button>
+          <div class="mc" onclick="openMovieById(${m.id})">
+            <div class="cp">
+              <img src="${m.poster}" alt="${m.nameRu}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=400&auto=format&fit=crop'">
+              <div class="crat">★ ${m.rating}</div>
+              <div class="ctype">${tag}</div>
+              <button class="cfav${isFav ? ' active' : ''}" onclick="event.stopPropagation(); toggleFav(${m.id})" title="В избранное">♥</button>
             </div>
-            <div class="p-3">
-              <h3 class="font-bold text-white text-sm truncate group-hover:text-red-400 transition-colors">${m.nameRu}</h3>
-              <p class="text-xs text-zinc-400 mt-0.5">${m.year} • ${m.genre}</p>
+            <div class="ci">
+              <div class="ctitle" title="${m.nameRu}">${m.nameRu}</div>
+              <div class="csub">${m.year} · ${m.genre}</div>
             </div>
           </div>
         `;
       }).join('');
 
       updateFavBadge();
-      lucide.createIcons();
     }
 
-    // SEARCH
-    async function handleSearchDebounce(query) {
-      clearTimeout(searchDebounceTimer);
-      const clearBtn = document.getElementById('search-clear-btn');
-      const dropdown = document.getElementById('search-dropdown');
+    // LIVE SEARCH WITH DEBOUNCE
+    function handleSearch(q) {
+      clearTimeout(srchTimer);
+      const dd = document.getElementById('search-dropdown');
+      const cl = document.getElementById('search-clear');
+      cl.style.display = q ? 'block' : 'none';
 
-      if (!query.trim()) {
-        dropdown.classList.add('hidden');
-        clearBtn.classList.add('hidden');
+      if (!q.trim()) {
+        dd.style.display = 'none';
         return;
       }
-      clearBtn.classList.remove('hidden');
 
-      dropdown.innerHTML = `
-        <div class="p-4 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
-          <div class="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          Поиск по Кинопоиску...
-        </div>
-      `;
-      dropdown.classList.remove('hidden');
+      dd.style.display = 'block';
+      dd.innerHTML = '<div style="padding:16px;text-align:center;color:#71717a;font-size:13px">Поиск фильмов и сериалов...</div>';
 
-      searchDebounceTimer = setTimeout(async () => {
+      srchTimer = setTimeout(async () => {
         let results = [];
         try {
-          const res = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(query)}`, {
-            headers: { 'X-API-KEY': API_KEY }
+          const res = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(q)}`, {
+            headers: { 'X-API-KEY': KP_KEY },
+            signal: AbortSignal.timeout(6000)
           });
           if (res.ok) {
-            const data = await res.json();
-            if (data.films && data.films.length > 0) {
-              results = data.films.slice(0, 10).map(f => ({
+            const d = await res.json();
+            if (d.films && d.films.length > 0) {
+              results = d.films.slice(0, 12).map(f => ({
                 id: f.filmId || f.kinopoiskId,
                 imdbId: f.imdbId,
                 nameRu: f.nameRu || f.nameEn || 'Фильм',
-                year: f.year || '2024',
-                rating: f.rating || '7.5',
-                poster: fixPoster(f.posterUrlPreview || f.posterUrl),
-                type: f.type === 'TV_SERIES' || f.type === 'MINI_SERIES' ? 'series' : 'films',
-                description: f.description || 'Смотреть онлайн бесплатно.'
+                year: f.year || '',
+                rating: f.rating || '—',
+                poster: proxyPoster(f.posterUrlPreview || f.posterUrl),
+                type: (f.type === 'TV_SERIES' || f.type === 'MINI_SERIES') ? 'series' : 'films',
+                genre: f.genres && f.genres[0] ? capFirst(f.genres[0].genre) : 'Кино',
+                description: 'Смотреть онлайн бесплатно в HD качестве.'
               }));
             }
           }
         } catch (e) {
-          console.warn('Network search fallback', e);
+          console.warn('Search fallback', e.message);
         }
 
-        if (results.length === 0) {
-          const q = query.toLowerCase();
-          results = catalogMovies.filter(m => m.nameRu.toLowerCase().includes(q));
+        if (!results.length) {
+          results = FALLBACK.filter(m => m.nameRu.toLowerCase().includes(q.toLowerCase()));
         }
 
-        if (results.length > 0) {
-          dropdown.innerHTML = results.map(m => `
-            <div onclick="openPlayerFromSearch(${m.id}, '${m.nameRu.replace(/'/g, "\\'")}', '${m.year}', '${m.rating}', '${m.poster}', '${m.imdbId || ''}', '${m.type}')" class="p-3 hover:bg-zinc-800 cursor-pointer flex items-center gap-3 transition-colors">
-              <img src="${m.poster}" class="w-9 h-13 object-cover rounded bg-zinc-950 flex-shrink-0 poster-img">
-              <div class="min-w-0 flex-1">
-                <div class="font-bold text-sm text-white truncate">${m.nameRu}</div>
-                <div class="text-xs text-zinc-400 mt-0.5 font-mono">${m.year} • <span class="text-emerald-400 font-bold">★ ${m.rating}</span></div>
-              </div>
-            </div>
-          `).join('');
-        } else {
-          dropdown.innerHTML = `
-            <div class="p-4 text-center text-xs text-zinc-400">
-              По запросу «${query}» ничего не найдено.
-            </div>
-          `;
+        if (!results.length) {
+          dd.innerHTML = `<div style="padding:20px;text-align:center;color:#71717a;font-size:13px">По запросу «${q}» ничего не найдено</div>`;
+          return;
         }
+
+        dd.innerHTML = results.map(m => `
+          <div class="sitem" onclick='openFromSearch(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
+            <img src="${m.poster}" alt="" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=100&auto=format&fit=crop'">
+            <div style="min-width:0;flex:1">
+              <div class="sitem-n">${m.nameRu}</div>
+              <div class="sitem-s">${m.year ? m.year + ' · ' : ''}${m.genre} · <span style="color:#10b981;font-weight:700">★ ${m.rating}</span></div>
+            </div>
+          </div>
+        `).join('');
       }, 300);
+    }
+
+    function openFromSearch(m) {
+      clearSearch();
+      openPlayer(m);
     }
 
     function clearSearch() {
       document.getElementById('search-input').value = '';
-      document.getElementById('search-dropdown').classList.add('hidden');
-      document.getElementById('search-clear-btn').classList.add('hidden');
+      document.getElementById('search-dropdown').style.display = 'none';
+      document.getElementById('search-clear').style.display = 'none';
     }
 
-    function openPlayerFromSearch(id, nameRu, year, rating, poster, imdbId, type) {
-      document.getElementById('search-dropdown').classList.add('hidden');
-      openPlayer({ id, imdbId, nameRu, year, rating, poster, type, description: 'Смотреть онлайн в высоком качестве HD.' });
-    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.sw')) {
+        document.getElementById('search-dropdown').style.display = 'none';
+      }
+    });
 
-    function openPlayerByMovieId(id) {
-      const m = catalogMovies.find(item => item.id === id) || BASE_MOVIES.find(item => item.id === id) || { id, nameRu: `Фильм #${id}`, year: 2024 };
+    // OPEN PLAYER
+    function openMovieById(id) {
+      const m = catalog.find(x => x.id === id) || FALLBACK.find(x => x.id === id) || { id, nameRu: `Фильм #${id}`, year: 2024, type: 'films' };
       openPlayer(m);
     }
 
     function openHeroMovie() {
       if (currentMovie) openPlayer(currentMovie);
-      else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
+      else if (catalog.length) openPlayer(catalog[0]);
     }
 
-    // VIDSRC HD EMBED LAUNCHER WITH STRICT POPUP TRAP
     function openPlayer(movie) {
       currentMovie = movie;
+      currentSeason = 1;
+      currentEpisode = 1;
+      providerIdx = 0;
+      playerActive = false;
+      document.querySelectorAll('.srv-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
 
-      document.getElementById('modal-title').innerText = movie.nameRu;
-      document.getElementById('modal-year').innerText = movie.year || '2024';
-      document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в плеере Vidsrc HD.';
+      document.getElementById('modal-title').textContent = movie.nameRu;
+      document.getElementById('modal-year').textContent = movie.year || '2024';
+      document.getElementById('modal-desc').textContent = movie.description || 'Смотреть онлайн в высоком качестве HD.';
+      document.getElementById('guard-title').textContent = '▶ ' + movie.nameRu;
+
+      const isFav = favorites.includes(movie.id);
+      document.getElementById('modal-fav-btn').classList.toggle('fa', isFav);
+
+      const sc = document.getElementById('series-controls');
+      if (movie.type === 'series') {
+        sc.classList.add('vis');
+        buildSeasons();
+        buildEpisodes();
+      } else {
+        sc.classList.remove('vis');
+      }
 
       const iframe = document.getElementById('player-iframe');
-      const isSeries = movie.type === 'series';
-      const targetId = movie.imdbId || movie.id;
+      iframe.src = 'about:blank';
+      iframe.removeAttribute('srcdoc');
 
-      // Pure Vidsrc HD stream URL
-      if (isSeries) {
-        iframe.src = `https://vidsrc.to/embed/tv/${targetId}`;
-      } else {
-        iframe.src = `https://vidsrc.to/embed/movie/${targetId}`;
-      }
-
-      document.getElementById('player-modal').classList.remove('hidden');
+      document.getElementById('player-guard').style.display = 'flex';
+      document.getElementById('player-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
+
+    // ACTIVATION ON USER CLICK (prevents auto-redirects before user interaction)
+    function activatePlayer() {
+      if (playerActive) return;
+      playerActive = true;
+      document.getElementById('player-guard').style.display = 'none';
+      loadEmbed();
+    }
+
+    function loadEmbed() {
+      if (!currentMovie) return;
+      const fn = PROVIDERS[providerIdx];
+      if (!fn) {
+        showNoPlayer();
+        return;
+      }
+      const url = fn(currentMovie.imdbId, currentMovie.type, currentSeason, currentEpisode, currentMovie.id);
+      document.getElementById('player-iframe').src = url;
+    }
+
+    function showNoPlayer() {
+      document.getElementById('player-iframe').srcdoc = `
+        <html><body style="background:#09090b;color:#71717a;font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;text-align:center;padding:20px;margin:0">
+          <div style="font-size:42px;opacity:.4">🎬</div>
+          <div style="font-size:16px;font-weight:700;color:#a1a1aa">Плеер недоступен для данного тайтла</div>
+          <div style="font-size:13px;color:#71717a">Попробуйте другой фильм или обновите страницу</div>
+        </body></html>
+      `;
+    }
+
+    function toggleFullscreen() {
+      const pa = document.getElementById('player-area');
+      const isFs = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+      if (!isFs) {
+        if (pa.requestFullscreen) pa.requestFullscreen().catch(() => {});
+        else if (pa.webkitRequestFullscreen) pa.webkitRequestFullscreen();
+        else if (pa.mozRequestFullScreen) pa.mozRequestFullScreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      }
+    }
+
+    document.addEventListener('fullscreenchange', updateFsButton);
+    document.addEventListener('webkitfullscreenchange', updateFsButton);
+    document.addEventListener('mozfullscreenchange', updateFsButton);
+
+    function updateFsButton() {
+      const btn = document.getElementById('modal-fs-btn');
+      if (!btn) return;
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+      btn.textContent = isFs ? '✕' : '⛶';
+      btn.title = isFs ? 'Выйти из полноэкранного режима (Esc / F)' : 'Во весь экран (F)';
+    }
+
+    document.addEventListener('keydown', e => {
+      const modal = document.getElementById('player-modal');
+      const isModalOpen = modal && modal.classList.contains('open');
+      if (e.key === 'Escape' && isModalOpen) {
+        if (document.fullscreenElement) {
+          try { document.exitFullscreen(); } catch (err) {}
+        } else {
+          closePlayer();
+        }
+      } else if ((e.key === 'f' || e.key === 'F' || e.key === 'а' || e.key === 'А') && isModalOpen && document.activeElement.tagName !== 'INPUT') {
+        toggleFullscreen();
+      }
+    });
 
     function closePlayer() {
-      document.getElementById('player-modal').classList.add('hidden');
-      document.getElementById('player-iframe').src = '';
+      if (document.fullscreenElement) {
+        try { document.exitFullscreen(); } catch (e) {}
+      }
+      document.getElementById('player-modal').classList.remove('open');
+      document.body.style.overflow = '';
+      const f = document.getElementById('player-iframe');
+      f.src = 'about:blank';
+      f.removeAttribute('srcdoc');
+      playerActive = false;
     }
 
-    // FAVORITES
-    function toggleFavorite(id) {
+    // SERIES CONTROLS
+    function buildSeasons() {
+      const s = document.getElementById('season-select');
+      s.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const o = document.createElement('option');
+        o.value = i;
+        o.textContent = `Сезон ${i}`;
+        s.appendChild(o);
+      }
+      s.value = currentSeason;
+    }
+
+    function buildEpisodes() {
+      const l = document.getElementById('ep-list');
+      l.innerHTML = '';
+      for (let i = 1; i <= 24; i++) {
+        const b = document.createElement('button');
+        b.className = 'epbtn' + (i === currentEpisode ? ' active' : '');
+        b.textContent = i;
+        b.onclick = () => selectEp(i);
+        l.appendChild(b);
+      }
+    }
+
+    function onSeasonChange() {
+      currentSeason = parseInt(document.getElementById('season-select').value) || 1;
+      currentEpisode = 1;
+      buildEpisodes();
+      if (playerActive) loadEmbed();
+    }
+
+    function selectEp(ep) {
+      currentEpisode = ep;
+      document.querySelectorAll('.epbtn').forEach((b, i) => b.classList.toggle('active', i + 1 === ep));
+      if (playerActive) loadEmbed();
+      else activatePlayer();
+    }
+
+    // FAVORITES SYSTEM
+    function toggleFav(id) {
       if (favorites.includes(id)) {
-        favorites = favorites.filter(favId => favId !== id);
+        favorites = favorites.filter(x => x !== id);
+        showToast('Удалено из избранного');
       } else {
         favorites.push(id);
+        showToast('Добавлено в избранное ♥');
       }
-      localStorage.setItem('cinema_favs', JSON.stringify(favorites));
-      renderCatalog();
+      localStorage.setItem('cinema_favs_v2', JSON.stringify(favorites));
+      if (currentMovie && currentMovie.id === id) {
+        document.getElementById('modal-fav-btn').classList.toggle('fa', favorites.includes(id));
+      }
+      renderGrid();
     }
 
     function toggleCurrentFavorite() {
-      if (currentMovie) toggleFavorite(currentMovie.id);
+      if (currentMovie) toggleFav(currentMovie.id);
     }
 
     function updateFavBadge() {
-      const badge = document.getElementById('fav-count-badge');
+      const b = document.getElementById('fav-badge');
       if (favorites.length > 0) {
-        badge.innerText = favorites.length;
-        badge.classList.remove('hidden');
+        b.textContent = favorites.length;
+        b.style.display = 'block';
       } else {
-        badge.classList.add('hidden');
+        b.style.display = 'none';
       }
     }
 
+    // TABS & GENRES
     function switchTab(tab) {
       currentTab = tab;
       currentGenre = 'all';
-      
-      ['popular', 'top250', 'series', 'favorites'].forEach(t => {
-        const btn = document.getElementById(`nav-${t}`);
-        if (btn) btn.className = t === tab ? 'px-3.5 py-1.5 rounded-xl text-sm font-semibold bg-zinc-800 text-white shadow-sm' : 'px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white';
+
+      ['popular', 'top250', 'series'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (el) el.classList.toggle('active', t === tab);
       });
+      const favTab = document.getElementById('tab-favorites');
+      if (favTab) favTab.classList.toggle('active', tab === 'favorites');
+
+      document.querySelectorAll('.gbtn').forEach(b => b.classList.toggle('active', b.getAttribute('data-genre') === 'all'));
+
+      const secTitle = document.getElementById('section-title');
+      if (tab === 'popular') secTitle.textContent = 'Популярное сейчас';
+      else if (tab === 'top250') secTitle.textContent = 'Топ 250 фильмов';
+      else if (tab === 'series') secTitle.textContent = 'Популярные сериалы';
+      else if (tab === 'favorites') secTitle.textContent = 'Моё избранное';
 
       if (tab === 'popular' || tab === 'top250' || tab === 'series') {
-        loadInitialCatalog(tab);
+        loadCatalog(tab);
       } else {
-        renderCatalog();
+        renderGrid();
       }
     }
 
-    function filterGenre(genre) {
+    function setGenre(genre) {
       currentGenre = genre;
-      document.querySelectorAll('.genre-btn').forEach(btn => {
-        const isCurrent = btn.getAttribute('data-genre') === genre;
-        btn.className = isCurrent ? 'genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white' : 'genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800';
+      document.querySelectorAll('.gbtn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-genre') === genre);
       });
-      renderCatalog();
+      renderGrid();
     }
 
-    // INIT ON LOAD
-    loadInitialCatalog('popular');
-    lucide.createIcons();
+    // TOAST NOTIFICATION
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        t.classList.remove('show');
+      }, 2400);
+    }
+
+    // INIT
+    loadCatalog('popular');
   </script>
 </body>
 </html>
