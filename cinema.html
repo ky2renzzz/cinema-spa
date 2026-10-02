@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CINEMA-SPA — Онлайн Кинотеатр (Без бэкенда и БД)</title>
-  <meta name="description" content="Бесплатный онлайн-кинотеатр на чистом HTML/JS/CSS с несколькими CDN-плеерами (Collaps, Kinobox, SvCDN) и поиском по Kinopoisk ID.">
+  <meta name="description" content="Бесплатный онлайн-кинотеатр: все фильмы, сериалы, аниме, выбор озвучек, качества и серий. Работает через CDN балансеры.">
   
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Kinobox Player Engine -->
+  <script src="https://kinobox.tv/kinobox.min.js"></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,61 +33,66 @@
   <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .kinobox_player iframe { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen selection:bg-red-600/30 selection:text-red-200">
 
   <!-- NAVBAR -->
-  <header class="sticky top-0 z-40 bg-zinc-950/85 backdrop-blur-md border-b border-zinc-800/80">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 gap-4">
         
         <!-- Logo -->
         <div class="flex items-center gap-6">
           <a href="#" onclick="switchTab('all')" class="flex items-center gap-2 group">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center shadow-lg shadow-red-600/30">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
               <i data-lucide="play" class="w-5 h-5 text-white fill-white ml-0.5"></i>
             </div>
             <div>
               <span class="font-extrabold text-xl text-white tracking-wide">CINEMA<span class="text-red-500">SPA</span></span>
-              <span class="block text-[9px] font-mono text-zinc-400 tracking-widest uppercase">Pure Frontend • No DB</span>
+              <span class="block text-[9px] font-mono text-zinc-400 tracking-widest uppercase">Поиск всех фильмов • Все озвучки</span>
             </div>
           </a>
 
           <nav class="hidden md:flex items-center space-x-1">
-            <button onclick="switchTab('all')" id="nav-all" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-zinc-800 text-white">Главная</button>
+            <button onclick="switchTab('all')" id="nav-all" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-zinc-800 text-white shadow-sm">Главная</button>
             <button onclick="switchTab('films')" id="nav-films" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-400 hover:text-white">Фильмы</button>
             <button onclick="switchTab('series')" id="nav-series" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-400 hover:text-white">Сериалы</button>
             <button onclick="switchTab('anime')" id="nav-anime" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-400 hover:text-white">Аниме</button>
           </nav>
         </div>
 
-        <!-- Search Bar -->
-        <div class="flex-1 max-w-md relative">
+        <!-- Live Search Bar -->
+        <div class="flex-1 max-w-md relative" id="search-container">
           <div class="relative">
             <input
               type="text"
               id="search-input"
-              placeholder="Поиск фильмов, сериалов..."
-              oninput="handleSearch(this.value)"
-              class="w-full bg-zinc-900 text-zinc-100 text-sm pl-10 pr-9 py-2 rounded-xl border border-zinc-800 focus:outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20"
+              placeholder="Введите название любого фильма или сериала..."
+              oninput="handleSearchDebounce(this.value)"
+              onfocus="if(this.value.trim()) document.getElementById('search-dropdown').classList.remove('hidden')"
+              class="w-full bg-zinc-900 text-zinc-100 text-sm pl-10 pr-9 py-2 rounded-xl border border-zinc-800 focus:outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-zinc-500"
             />
             <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
           </div>
 
           <!-- Dropdown search results -->
-          <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden z-50 max-h-96 overflow-y-auto divide-y divide-zinc-800">
+          <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden z-50 max-h-96 overflow-y-auto divide-y divide-zinc-800/60">
           </div>
         </div>
 
         <!-- Actions -->
         <div class="flex items-center gap-2">
-          <button onclick="openIdPrompt()" class="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-xl text-xs font-semibold border border-zinc-800 flex items-center gap-1.5">
+          <button onclick="openIdPrompt()" class="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-xl text-xs font-semibold border border-zinc-800 flex items-center gap-1.5 transition-all">
             <i data-lucide="hash" class="w-3.5 h-3.5 text-amber-400"></i>
-            <span class="hidden sm:inline">Ввести ID</span>
+            <span class="hidden sm:inline">По ID</span>
           </button>
 
-          <button onclick="switchTab('favorites')" id="nav-favorites" class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white relative">
+          <button onclick="switchTab('favorites')" id="nav-favorites" class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white relative transition-all" title="Избранное">
             <i data-lucide="heart" class="w-4 h-4"></i>
             <span id="fav-count-badge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
           </button>
@@ -106,30 +113,37 @@
       
       <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-10 max-w-3xl z-10 space-y-4">
         <div class="flex items-center gap-2">
-          <span class="px-2.5 py-1 rounded-md bg-red-600 text-white text-xs font-bold uppercase tracking-wider">🔥 В тренде</span>
+          <span class="px-2.5 py-1 rounded-md bg-red-600 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3 h-3"></i> Хиты сезона
+          </span>
           <span id="hero-year" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 text-xs font-semibold">2014</span>
           <span id="hero-rating" class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">★ KP 8.6</span>
         </div>
-        <h1 id="hero-title" class="text-3xl sm:text-5xl font-black text-white tracking-tight">Интерстеллар</h1>
+        <h1 id="hero-title" class="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-md">Интерстеллар</h1>
         <p id="hero-desc" class="text-sm text-zinc-300 line-clamp-3 leading-relaxed">Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в путешествие, чтобы найти подходящую планету.</p>
         
         <div class="flex items-center gap-3 pt-2">
-          <button id="hero-play-btn" onclick="openPlayer(258687)" class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-2xl shadow-xl shadow-red-600/40 flex items-center gap-2 transition-all transform hover:scale-105">
-            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть онлайн
+          <button id="hero-play-btn" onclick="openPlayer({id: 258687, nameRu: 'Интерстеллар', year: 2014, rating: 8.6, description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису...'})" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-sm font-bold rounded-2xl shadow-xl shadow-red-600/40 flex items-center gap-2 transition-all transform hover:scale-105">
+            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть в 1080p
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Catalog Section -->
-    <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
-      <h2 id="section-title" class="text-2xl font-extrabold text-white">Каталог фильмов и сериалов</h2>
-      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar" id="genre-filters">
-        <button onclick="filterGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white">Все</button>
-        <button onclick="filterGenre('Фантастика')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white">Фантастика</button>
-        <button onclick="filterGenre('Боевик')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white">Боевик</button>
-        <button onclick="filterGenre('Драма')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white">Драма</button>
-        <button onclick="filterGenre('Комедия')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white">Комедия</button>
+    <!-- Catalog Section Header & Genre Filters -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4 mb-6">
+      <div class="flex items-center gap-2">
+        <i data-lucide="film" class="w-5 h-5 text-red-500"></i>
+        <h2 id="section-title" class="text-2xl font-extrabold text-white">Каталог фильмов и сериалов</h2>
+      </div>
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="genre-filters">
+        <button onclick="filterGenre('all')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white" data-genre="all">Все</button>
+        <button onclick="filterGenre('Фантастика')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Фантастика">Фантастика</button>
+        <button onclick="filterGenre('Боевик')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Боевик">Боевик</button>
+        <button onclick="filterGenre('Драма')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Драма">Драма</button>
+        <button onclick="filterGenre('Комедия')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Комедия">Комедия</button>
+        <button onclick="filterGenre('Мультфильм')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Мультфильм">Мультфильм</button>
+        <button onclick="filterGenre('Триллер')" class="genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Триллер">Триллер</button>
       </div>
     </div>
 
@@ -140,77 +154,109 @@
   </main>
 
   <!-- PLAYER MODAL -->
-  <div id="player-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl relative flex flex-col max-h-[95vh] my-auto">
+  <div id="player-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 lg:p-6 animate-fadeIn">
+    <!-- Backdrop click to close -->
+    <div class="fixed inset-0" onclick="closePlayer()"></div>
+
+    <div class="relative bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl z-10 flex flex-col my-auto max-h-[95vh]">
       
       <!-- Modal Header -->
-      <div class="p-4 flex items-center justify-between bg-zinc-900/60 border-b border-zinc-800">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center">
-            <i data-lucide="play" class="w-5 h-5 fill-red-500"></i>
+      <div class="p-4 sm:p-5 flex items-center justify-between bg-zinc-900/80 border-b border-zinc-800">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="play" class="w-5 h-5 fill-red-500 ml-0.5"></i>
           </div>
-          <div>
-            <h3 id="modal-title" class="font-bold text-white text-lg">Интерстеллар</h3>
-            <span id="modal-kp-id" class="text-xs text-zinc-400">KP ID: <strong class="text-amber-400 font-mono">258687</strong></span>
+          <div class="min-w-0">
+            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Название фильма</h3>
+            <div class="flex items-center gap-2 text-xs text-zinc-400">
+              <span id="modal-year">2024</span>
+              <span>•</span>
+              <span id="modal-kp-id">KP ID: <strong class="text-amber-400 font-mono">258687</strong></span>
+            </div>
           </div>
         </div>
-        <button onclick="closePlayer()" class="p-2 rounded-xl bg-zinc-900 hover:bg-red-950 text-zinc-400 hover:text-red-400">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <div class="flex items-center gap-2">
+          <button id="modal-fav-btn" onclick="toggleCurrentFavorite()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
+            <i data-lucide="heart" class="w-4 h-4"></i>
+          </button>
+          <button onclick="closePlayer()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-red-950 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- CDN Provider Selector (Fallback Tabs) -->
+      <div class="bg-zinc-900/90 px-4 py-3 flex items-center justify-between gap-2 border-b border-zinc-800 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-1.5 min-w-max">
+          <span class="text-xs font-semibold text-zinc-400 mr-1 hidden sm:inline">Источники плеера:</span>
+          <button onclick="switchProvider('kinobox')" id="prov-kinobox" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white shadow-md shadow-red-600/30">🔥 Kinobox (Мульти-балансер)</button>
+          <button onclick="switchProvider('kollam')" id="prov-kollam" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Collaps</button>
+          <button onclick="switchProvider('alloha')" id="prov-alloha" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Alloha</button>
+          <button onclick="switchProvider('svcdn')" id="prov-svcdn" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">SvCDN</button>
+          <button onclick="switchProvider('vidsrc')" id="prov-vidsrc" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Vidsrc (IMDb)</button>
+        </div>
+        <button onclick="reloadPlayer()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white bg-zinc-950 border border-zinc-800">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
 
-      <!-- CDN Provider Selector (Fallback) -->
-      <div class="bg-zinc-900 px-4 py-2.5 flex items-center gap-2 border-b border-zinc-800 overflow-x-auto no-scrollbar">
-        <span class="text-xs font-semibold text-zinc-400 mr-2">Провайдеры CDN:</span>
-        <button onclick="switchProvider('kollam')" id="prov-kollam" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white">Плеер 1 (Collaps)</button>
-        <button onclick="switchProvider('kinobox')" id="prov-kinobox" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 2 (Kinobox)</button>
-        <button onclick="switchProvider('svcdn')" id="prov-svcdn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 3 (SvCDN)</button>
-        <button onclick="switchProvider('alloha')" id="prov-alloha" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 4 (Alloha)</button>
-      </div>
+      <!-- Player Screen -->
+      <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
+        
+        <!-- Kinobox Auto Container -->
+        <div id="kinobox-container" class="kinobox_player w-full h-full"></div>
 
-      <!-- Iframe Player -->
-      <div class="relative aspect-video w-full bg-black">
-        <iframe id="player-iframe" src="" class="w-full h-full border-0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <!-- Iframe Fallback Container -->
+        <iframe id="player-iframe" src="" class="hidden w-full h-full border-0" allowfullscreen allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
 
       <!-- Footer Info -->
-      <div class="p-4 bg-zinc-900/40 text-xs text-zinc-400 flex items-center justify-between border-t border-zinc-800">
-        <span>Плеер автоматически поддерживает выбор озвучек, качества и серий.</span>
-        <button onclick="openIdPrompt()" class="text-amber-400 hover:underline">Сменить ID фильма</button>
+      <div class="p-4 bg-zinc-950 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-zinc-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+          <span>Плеер автоматически поддерживает выбор озвучек (Дубляж, HDRezka, TVShows), субтитров и серий.</span>
+        </div>
+        <button onclick="openIdPrompt()" class="text-amber-400 hover:underline flex-shrink-0">Ввести другой KP ID</button>
+      </div>
+
+      <!-- Description -->
+      <div className="p-5 bg-zinc-950 border-t border-zinc-900">
+        <p id="modal-description" class="text-xs text-zinc-300 leading-relaxed line-clamp-3">Описание загружается...</p>
       </div>
 
     </div>
   </div>
 
   <script>
-    // DATA MOCK CATALOG
-    const MOVIES = [
-      { id: 258687, nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg', type: 'films', genre: 'Фантастика' },
-      { id: 4664634, nameRu: 'Оппенгеймер', year: 2023, rating: 8.2, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/4664634.jpg', type: 'films', genre: 'Драма' },
-      { id: 4444572, nameRu: 'Дюна: Часть 2', year: 2024, rating: 8.5, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/4444572.jpg', type: 'films', genre: 'Фантастика' },
-      { id: 1227954, nameRu: 'Уэнсдэй', year: 2022, rating: 8.0, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1227954.jpg', type: 'series', genre: 'Фэнтези' },
-      { id: 1143242, nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg', type: 'anime', genre: 'Боевик' },
-      { id: 404900, nameRu: 'Во все тяжкие', year: 2008, rating: 8.9, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg', type: 'series', genre: 'Драма' },
-      { id: 464963, nameRu: 'Игра престолов', year: 2011, rating: 9.0, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg', type: 'series', genre: 'Фэнтези' },
-      { id: 301, nameRu: 'Матрица', year: 1999, rating: 8.5, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/301.jpg', type: 'films', genre: 'Фантастика' },
-      { id: 1236067, nameRu: 'Человек-паук: Паутина вселенных', year: 2023, rating: 8.5, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1236067.jpg', type: 'anime', genre: 'Боевик' },
-      { id: 685246, nameRu: 'Рик и Морти', year: 2013, rating: 8.9, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/685246.jpg', type: 'anime', genre: 'Комедия' },
-      { id: 361, nameRu: 'Бойцовский клуб', year: 1999, rating: 8.6, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/361.jpg', type: 'films', genre: 'Драма' },
-      { id: 251733, nameRu: 'Аватар', year: 2009, rating: 8.0, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/251733.jpg', type: 'films', genre: 'Фантастика' }
+    // POPULAR CURATED MOVIES DATABASE
+    const BASE_MOVIES = [
+      { id: 258687, nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg', type: 'films', genre: 'Фантастика', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в путешествие.' },
+      { id: 4664634, nameRu: 'Оппенгеймер', year: 2023, rating: 8.2, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/4664634.jpg', type: 'films', genre: 'Драма', description: 'История жизни американского физика Роберта Оппенгеймера, который стоял во главе первых разработок ядерного оружия.' },
+      { id: 4444572, nameRu: 'Дюна: Часть вторая', year: 2024, rating: 8.5, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/4444572.jpg', type: 'films', genre: 'Фантастика', description: 'Герцог Пол Атрейдес объединяется с Чани и фременами, чтобы отомстить заговорщикам, уничтожившим его семью.' },
+      { id: 1227954, nameRu: 'Уэнсдэй', year: 2022, rating: 8.0, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1227954.jpg', type: 'series', genre: 'Фэнтези', description: 'Уэнсдэй Аддамс поступает в академию «Невермор», где пытается освоить свои экстрасенсорные способности и расследовать убийства.' },
+      { id: 1143242, nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg', type: 'anime', genre: 'Боевик', description: 'История разворачивается в утопическом Пилтовере и подземном Зауне и рассказывает о становлении двух сестер-чемпионов.' },
+      { id: 404900, nameRu: 'Во все тяжкие', year: 2008, rating: 8.9, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg', type: 'series', genre: 'Драма', description: 'Учитель химии Уолтер Уайт узнает о смертельном диагнозе и начинает производить метамфетамин ради будущего семьи.' },
+      { id: 464963, nameRu: 'Игра престолов', year: 2011, rating: 9.0, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg', type: 'series', genre: 'Фэнтези', description: 'Несколько могущественных семейств Вестероса сражаются за Железный трон в канун наступления многолетней зимы.' },
+      { id: 301, nameRu: 'Матрица', year: 1999, rating: 8.5, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/301.jpg', type: 'films', genre: 'Фантастика', description: 'Программист Нео узнает страшную правду о том, что окружающая его реальность — это иллюзия, созданная машинами.' },
+      { id: 1236067, nameRu: 'Человек-паук: Паутина вселенных', year: 2023, rating: 8.5, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1236067.jpg', type: 'anime', genre: 'Боевик', description: 'Майлз Моралес отправляется в путешествие по мультивселенной вместе с командой Пауков со всех миров.' },
+      { id: 685246, nameRu: 'Рик и Морти', year: 2013, rating: 8.9, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/685246.jpg', type: 'anime', genre: 'Комедия', description: 'Безумные межгалактические и межизмерительные приключения гениального деда-ученого Рика и его внука Морти.' },
+      { id: 361, nameRu: 'Бойцовский клуб', year: 1999, rating: 8.6, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/361.jpg', type: 'films', genre: 'Драма', description: 'Сотрудник страховой компании с бессонницей встречает продавца мыла Тайлера Дёрдена и создает подпольный клуб.' },
+      { id: 251733, nameRu: 'Аватар', year: 2009, rating: 8.0, poster: 'https://kinopoiskapiunofficial.tech/images/posters/kp/251733.jpg', type: 'films', genre: 'Фантастика', description: 'Бывший морпех Джейк Салли на планете Пандора оказывается в центре битвы за выживание местного народа Нави.' }
     ];
 
     let currentTab = 'all';
     let currentGenre = 'all';
-    let currentKpId = 258687;
-    let favorites = JSON.parse(localStorage.getItem('cinema_favs') || '[]');
+    let currentMovie = BASE_MOVIES[0];
+    let favorites = JSON.parse(localStorage.getItem('cinema_favs') || '[258687, 4444572]');
+    let searchDebounceTimer = null;
 
-    // RENDER CATALOG
+    // RENDER CATALOG GRID
     function renderCatalog() {
       const grid = document.getElementById('movie-grid');
-      let filtered = MOVIES;
+      let filtered = BASE_MOVIES;
 
       if (currentTab === 'favorites') {
-        filtered = MOVIES.filter(m => favorites.includes(m.id));
+        filtered = BASE_MOVIES.filter(m => favorites.includes(m.id));
       } else if (currentTab !== 'all') {
         filtered = filtered.filter(m => m.type === currentTab);
       }
@@ -219,83 +265,256 @@
         filtered = filtered.filter(m => m.genre === currentGenre);
       }
 
-      grid.innerHTML = filtered.map(m => `
-        <div onclick="openPlayer(${m.id})" class="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-red-500/50 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 shadow-lg">
-          <div class="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
-            <img src="${m.poster}" alt="${m.nameRu}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            <div class="absolute top-3 left-3 bg-zinc-950/80 backdrop-blur-md px-2 py-1 rounded-lg border border-zinc-700/60 text-xs font-extrabold text-amber-400">
-              ★ ${m.rating}
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full p-12 text-center bg-zinc-900/40 rounded-3xl border border-zinc-800">
+            <p class="text-zinc-400 text-sm">Фильмы по выбранному фильтру не найдены.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(m => {
+        const isFav = favorites.includes(m.id);
+        return `
+          <div onclick="openPlayerByMovieId(${m.id})" class="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-red-500/50 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 shadow-lg flex flex-col justify-between">
+            <div class="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
+              <img src="${m.poster}" alt="${m.nameRu}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+              <div class="absolute top-3 left-3 bg-zinc-950/80 backdrop-blur-md px-2 py-1 rounded-lg border border-zinc-700/60 text-xs font-extrabold text-amber-400 shadow-md">
+                ★ ${m.rating}
+              </div>
+              <button onclick="event.stopPropagation(); toggleFavorite(${m.id})" class="absolute bottom-3 right-3 p-2 rounded-xl backdrop-blur-md border ${isFav ? 'bg-red-950 border-red-700 text-red-400' : 'bg-zinc-950/80 hover:bg-zinc-800 border-zinc-700 text-zinc-300'}">
+                <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}"></i>
+              </button>
+            </div>
+            <div class="p-3">
+              <h3 class="font-bold text-white text-sm truncate group-hover:text-red-400 transition-colors">${m.nameRu}</h3>
+              <p class="text-xs text-zinc-400 mt-0.5">${m.year} • ${m.genre}</p>
             </div>
           </div>
-          <div class="p-3">
-            <h3 class="font-bold text-white text-sm truncate group-hover:text-red-400">${m.nameRu}</h3>
-            <p class="text-xs text-zinc-400 mt-0.5">${m.year} • ${m.genre}</p>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
+      updateFavBadge();
       lucide.createIcons();
     }
 
-    // SWITCH TAB
-    function switchTab(tab) {
-      currentTab = tab;
-      currentGenre = 'all';
-      renderCatalog();
+    // LIVE GLOBAL SEARCH (Kinopoisk API + Local Fuzzy)
+    async function handleSearchDebounce(query) {
+      clearTimeout(searchDebounceTimer);
+      const clearBtn = document.getElementById('search-clear-btn');
+      const dropdown = document.getElementById('search-dropdown');
+
+      if (!query.trim()) {
+        dropdown.classList.add('hidden');
+        clearBtn.classList.add('hidden');
+        return;
+      }
+      clearBtn.classList.remove('hidden');
+
+      dropdown.innerHTML = `
+        <div class="p-4 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
+          <div class="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+          Поиск по мировой базе фильмов...
+        </div>
+      `;
+      dropdown.classList.remove('hidden');
+
+      searchDebounceTimer = setTimeout(async () => {
+        let results = [];
+        try {
+          const res = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(query)}`, {
+            headers: { 'X-API-KEY': '8c86825c-07a6-4f82-a4db-b09f10e35965' }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.films && data.films.length > 0) {
+              results = data.films.slice(0, 12).map(f => ({
+                id: f.filmId || f.kinopoiskId,
+                nameRu: f.nameRu || f.nameEn || 'Фильм без названия',
+                year: f.year || '2024',
+                rating: f.rating || '7.5',
+                poster: f.posterUrlPreview || f.posterUrl,
+                description: f.description || 'Нажмите для запуска плеера.'
+              }));
+            }
+          }
+        } catch (e) {
+          console.warn('Network search fallback to local', e);
+        }
+
+        // Fallback local search
+        if (results.length === 0) {
+          const q = query.toLowerCase();
+          results = BASE_MOVIES.filter(m => m.nameRu.toLowerCase().includes(q));
+        }
+
+        if (results.length > 0) {
+          dropdown.innerHTML = results.map(m => `
+            <div onclick="openPlayerFromSearch(${m.id}, '${m.nameRu.replace(/'/g, "\\'")}', '${m.year}', '${m.rating}', '${m.poster}')" class="p-3 hover:bg-zinc-800 cursor-pointer flex items-center gap-3 transition-colors">
+              <img src="${m.poster}" class="w-9 h-13 object-cover rounded bg-zinc-950 flex-shrink-0">
+              <div class="min-w-0 flex-1">
+                <div class="font-bold text-sm text-white truncate">${m.nameRu}</div>
+                <div class="text-xs text-zinc-400 mt-0.5 font-mono">${m.year} • <span class="text-emerald-400 font-bold">★ ${m.rating}</span></div>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          dropdown.innerHTML = `
+            <div class="p-4 text-center text-xs text-zinc-400">
+              По запросу «${query}» ничего не найдено.
+              <button onclick="openIdPrompt('${query}')" class="block mx-auto mt-2 text-red-400 hover:underline">Ввести Kinopoisk ID вручную?</button>
+            </div>
+          `;
+        }
+      }, 350);
     }
 
-    // FILTER GENRE
-    function filterGenre(genre) {
-      currentGenre = genre;
-      renderCatalog();
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('search-dropdown').classList.add('hidden');
+      document.getElementById('search-clear-btn').classList.add('hidden');
     }
 
-    // PLAYER FUNCTIONS
-    function openPlayer(kpId) {
-      currentKpId = kpId;
-      const movie = MOVIES.find(m => m.id === kpId) || { nameRu: `Фильм #${kpId}` };
+    function openPlayerFromSearch(id, nameRu, year, rating, poster) {
+      document.getElementById('search-dropdown').classList.add('hidden');
+      openPlayer({ id, nameRu, year, rating, poster, description: 'Загрузка медиапотока...' });
+    }
+
+    function openPlayerByMovieId(id) {
+      const m = BASE_MOVIES.find(item => item.id === id) || { id, nameRu: `Фильм #${id}`, year: 2024 };
+      openPlayer(m);
+    }
+
+    // PLAYER ENGINE INITIALIZATION (KINOBOX + FALLBACKS)
+    function openPlayer(movie) {
+      currentMovie = movie;
       document.getElementById('modal-title').innerText = movie.nameRu;
-      document.getElementById('modal-kp-id').innerHTML = `KP ID: <strong class="text-amber-400 font-mono">${kpId}</strong>`;
-      switchProvider('kollam');
+      document.getElementById('modal-year').innerText = movie.year || '2024';
+      document.getElementById('modal-kp-id').innerHTML = `KP ID: <strong class="text-amber-400 font-mono">${movie.id}</strong>`;
+      document.getElementById('modal-description').innerText = movie.description || 'Плеер подгрузит нужные озвучки и качества автоматической строкой.';
+
       document.getElementById('player-modal').classList.remove('hidden');
+
+      // Default to Kinobox Multi-balancer Engine
+      switchProvider('kinobox');
     }
 
     function closePlayer() {
       document.getElementById('player-modal').classList.add('hidden');
       document.getElementById('player-iframe').src = '';
+      document.getElementById('kinobox-container').innerHTML = '';
     }
 
     function switchProvider(prov) {
+      const kboxContainer = document.getElementById('kinobox-container');
       const iframe = document.getElementById('player-iframe');
-      if (prov === 'kollam') iframe.src = `https://kollam.net/embed/kinopoisk/${currentKpId}`;
-      else if (prov === 'kinobox') iframe.src = `https://kinobox.in/embed/kp/${currentKpId}`;
-      else if (prov === 'svcdn') iframe.src = `https://2415.svcdn.in/embed/${currentKpId}`;
-      else if (prov === 'alloha') iframe.src = `https://api.alloha.tv/?token=2b498f3b7d301b7a2d6771d31d0442&kp=${currentKpId}`;
+
+      // Update provider active tab buttons UI
+      document.querySelectorAll('.prov-btn').forEach(btn => {
+        btn.className = 'prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800';
+      });
+      const activeBtn = document.getElementById(`prov-${prov}`);
+      if (activeBtn) activeBtn.className = 'prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white shadow-md shadow-red-600/30';
+
+      if (prov === 'kinobox') {
+        iframe.classList.add('hidden');
+        iframe.src = '';
+        kboxContainer.classList.remove('hidden');
+        kboxContainer.innerHTML = '';
+
+        if (window.Kinobox) {
+          try {
+            new Kinobox('.kinobox_player', {
+              search: { kinopoisk: currentMovie.id, title: currentMovie.nameRu },
+              menu: { default: 'menuList', mobile: 'menuList', format: '{search.title} ({player.translation})', limit: 10 },
+              players: {
+                alloha: { enable: true, position: 1 },
+                collaps: { enable: true, position: 2 },
+                kodik: { enable: true, position: 3 },
+                voidboost: { enable: true, position: 4 },
+                videocdn: { enable: true, position: 5 }
+              }
+            }).init();
+          } catch (err) {
+            console.warn('Kinobox fallback iframe launch', err);
+            iframe.src = `https://kinobox.in/embed/kp/${currentMovie.id}`;
+            kboxContainer.classList.add('hidden');
+            iframe.classList.remove('hidden');
+          }
+        } else {
+          iframe.src = `https://kinobox.in/embed/kp/${currentMovie.id}`;
+          kboxContainer.classList.add('hidden');
+          iframe.classList.remove('hidden');
+        }
+      } else {
+        kboxContainer.classList.add('hidden');
+        kboxContainer.innerHTML = '';
+        iframe.classList.remove('hidden');
+
+        if (prov === 'kollam') iframe.src = `https://kollam.net/embed/kinopoisk/${currentMovie.id}`;
+        else if (prov === 'alloha') iframe.src = `https://api.alloha.tv/?token=2b498f3b7d301b7a2d6771d31d0442&kp=${currentMovie.id}`;
+        else if (prov === 'svcdn') iframe.src = `https://2415.svcdn.in/embed/${currentMovie.id}`;
+        else if (prov === 'vidsrc') iframe.src = `https://vidsrc.me/embed/movie/${currentMovie.id}`;
+      }
     }
 
-    function openIdPrompt() {
-      const id = prompt("Введите Kinopoisk ID фильма (например: 258687):");
-      if (id && !isNaN(id)) openPlayer(parseInt(id));
+    function reloadPlayer() {
+      if (currentMovie) switchProvider('kinobox');
     }
 
-    // SEARCH
-    function handleSearch(val) {
-      const drop = document.getElementById('search-dropdown');
-      if (!val.trim()) { drop.classList.add('hidden'); return; }
-      const matched = MOVIES.filter(m => m.nameRu.toLowerCase().includes(val.toLowerCase()));
-      drop.innerHTML = matched.map(m => `
-        <div onclick="openPlayer(${m.id}); document.getElementById('search-dropdown').classList.add('hidden')" class="p-3 hover:bg-zinc-800 cursor-pointer flex items-center gap-3">
-          <img src="${m.poster}" class="w-8 h-12 object-cover rounded">
-          <div>
-            <div class="font-bold text-sm text-white">${m.nameRu}</div>
-            <div class="text-xs text-zinc-400">${m.year} • ★ ${m.rating}</div>
-          </div>
-        </div>
-      `).join('') || `<div class="p-4 text-center text-xs text-zinc-400">Ничего не найдено</div>`;
-      drop.classList.remove('hidden');
+    function openIdPrompt(defaultVal = '') {
+      const input = prompt("Введите Kinopoisk ID фильма (например: 258687):", defaultVal);
+      if (input && !isNaN(parseInt(input))) {
+        const id = parseInt(input);
+        openPlayer({ id, nameRu: `Фильм #${id}`, year: 2024, description: 'Прямая подгрузка по ID' });
+      }
     }
 
-    // INIT
+    // FAVORITES SYSTEM
+    function toggleFavorite(id) {
+      if (favorites.includes(id)) {
+        favorites = favorites.filter(favId => favId !== id);
+      } else {
+        favorites.push(id);
+      }
+      localStorage.setItem('cinema_favs', JSON.stringify(favorites));
+      renderCatalog();
+    }
+
+    function updateFavBadge() {
+      const badge = document.getElementById('fav-count-badge');
+      if (favorites.length > 0) {
+        badge.innerText = favorites.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      currentGenre = 'all';
+      
+      // Update nav UI
+      ['all', 'films', 'series', 'anime', 'favorites'].forEach(t => {
+        const btn = document.getElementById(`nav-${t}`);
+        if (btn) btn.className = t === tab ? 'px-3 py-1.5 rounded-lg text-sm font-semibold bg-zinc-800 text-white shadow-sm' : 'px-3 py-1.5 rounded-lg text-sm font-semibold text-zinc-400 hover:text-white';
+      });
+
+      renderCatalog();
+    }
+
+    function filterGenre(genre) {
+      currentGenre = genre;
+      document.querySelectorAll('.genre-btn').forEach(btn => {
+        const isCurrent = btn.getAttribute('data-genre') === genre;
+        btn.className = isCurrent ? 'genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white' : 'genre-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800';
+      });
+      renderCatalog();
+    }
+
+    // INIT ON LOAD
     renderCatalog();
     lucide.createIcons();
   </script>
