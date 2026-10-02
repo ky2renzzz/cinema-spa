@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #060606;
+  color: #e5e5e5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* Generalist Monospaced Meta details */
+.font-mono-meta {
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.02em;
+}
+
+/* Generalist Sharp Border Surfaces */
+.generalist-card {
+  background: #0a0a0a;
+  border: 1px solid #1c1c1c;
+  border-radius: 0px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.generalist-card:hover {
+  border-color: #333333;
+  background: #0e0e0e;
+}
+
+/* High contrast sharp buttons */
+.btn-generalist-primary {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+}
+.btn-generalist-primary:hover {
+  background: #d4d4d4;
+}
+
+.btn-generalist-secondary {
+  background: transparent;
+  color: #a3a3a3;
+  border: 1px solid #262626;
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+}
+.btn-generalist-secondary:hover {
+  color: #ffffff;
+  border-color: #525252;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btn-generalist-active {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
+  border-radius: 9999px;
+}
+
+/* Minimal input field */
+.input-generalist {
+  background: #0d0d0d;
+  border: 1px solid #262626;
+  color: #ffffff;
+  border-radius: 9999px;
+  transition: border-color 0.15s ease;
+}
+.input-generalist:focus {
+  outline: none;
+  border-color: #525252;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #060606;
+}
+::-webkit-scrollbar-thumb {
+  background: #262626;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+/* Range slider */
+input[type=range] {
+  -webkit-appearance: none;
+  background: #262626;
+  height: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+
+
