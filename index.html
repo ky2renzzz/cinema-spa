@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CINEMA — Онлайн Кинотеатр</title>
-  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в хорошем качестве HD без рекламы.">
+  <title>CINEMA — Онлайн Кинотеатр (Vidsrc HD)</title>
+  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в высоком качестве Vidsrc HD.">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -61,13 +61,13 @@
           </nav>
         </div>
 
-        <!-- Search Bar -->
+        <!-- Live Search Bar -->
         <div class="flex-1 max-w-md relative">
           <div class="relative">
             <input
               type="text"
               id="search-input"
-              placeholder="Поиск любых фильмов и сериалов..."
+              placeholder="Поиск фильмов и сериалов..."
               oninput="handleSearchDebounce(this.value)"
               onfocus="if(this.value.trim()) document.getElementById('search-dropdown').classList.remove('hidden')"
               class="w-full bg-zinc-900 text-zinc-100 text-sm pl-10 pr-9 py-2.5 rounded-xl border border-zinc-800 focus:outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-zinc-500"
@@ -107,7 +107,7 @@
       <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-10 max-w-3xl z-10 space-y-4">
         <div class="flex items-center gap-2">
           <span class="px-3 py-1 rounded-md bg-red-600 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Главный хит
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Vidsrc HD
           </span>
           <span id="hero-year" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 text-xs font-semibold">2014</span>
           <span id="hero-rating" class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">★ 8.6</span>
@@ -117,7 +117,7 @@
         
         <div class="flex items-center gap-3 pt-2">
           <button id="hero-play-btn" onclick="openHeroMovie()" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-sm font-bold rounded-2xl shadow-xl shadow-red-600/40 flex items-center gap-2 transition-all transform hover:scale-105">
-            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть онлайн
+            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть в Vidsrc HD
           </button>
         </div>
       </div>
@@ -144,7 +144,7 @@
 
   </main>
 
-  <!-- 1 MINIMALISTIC PLAYER MODAL (NO ADS, ULTRA CLEAN) -->
+  <!-- VIDSRC HD PLAYER MODAL -->
   <div id="player-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 lg:p-6">
     <!-- Backdrop click to close -->
     <div class="fixed inset-0" onclick="closePlayer()"></div>
@@ -158,19 +158,15 @@
             <i data-lucide="play" class="w-5 h-5 fill-red-500 ml-0.5"></i>
           </div>
           <div class="min-w-0">
-            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Название фильма</h3>
+            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Интерстеллар</h3>
             <div class="flex items-center gap-2 text-xs text-zinc-400">
-              <span id="modal-year">2024</span>
+              <span id="modal-year">2014</span>
               <span>•</span>
-              <span id="modal-genre" class="text-zinc-300">HD 1080p</span>
+              <span class="text-emerald-400 font-semibold">Плеер Vidsrc HD</span>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="toggleServer()" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all" title="Сменить сервер потока">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-red-400"></i>
-            <span>Сменить сервер</span>
-          </button>
           <button id="modal-fav-btn" onclick="toggleCurrentFavorite()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
             <i data-lucide="heart" class="w-4 h-4"></i>
           </button>
@@ -180,7 +176,7 @@
         </div>
       </div>
 
-      <!-- Single Video Player Screen (Zero Ads & Zero Popups) -->
+      <!-- Single Video Player Screen (Strictly Vidsrc HD) -->
       <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
         <iframe 
           id="player-iframe" 
@@ -213,11 +209,10 @@
     let currentTab = 'popular';
     let currentGenre = 'all';
     let currentMovie = null;
-    let currentServerIndex = 0;
     let favorites = JSON.parse(localStorage.getItem('cinema_favs') || '[]');
     let searchDebounceTimer = null;
 
-    // POPULAR CURATED MOVIES WITH VALID IMDB / KP IDS
+    // POPULAR CURATED MOVIES WITH VALID IMDB IDS (FOR 100% VIDSRC COMPATIBILITY)
     const BASE_MOVIES = [
       { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', type: 'films', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в путешествие.' },
       { id: 1143242, imdbId: 'tt11126994', nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg'), genre: 'Боевик', type: 'series', description: 'История разворачивается в утопическом Пилтовере и подземном Зауне и рассказывает о становлении двух сестер-чемпионов.' },
@@ -409,47 +404,24 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // GENERATE STREAM URL (VIDLINK HD -> AUTOEMBED -> VIDSRC)
-    function getStreamUrl(movie, serverIdx = 0) {
-      const isSeries = movie.type === 'series';
-      const imdbId = movie.imdbId;
-      const targetId = imdbId || movie.id;
-
-      const servers = [
-        // Server 1: Vidlink HD (Ultra clean, ad-free, seasons & subtitles built-in)
-        isSeries 
-          ? `https://vidlink.pro/tv/${targetId}` 
-          : `https://vidlink.pro/movie/${targetId}`,
-
-        // Server 2: Autoembed Pro
-        isSeries 
-          ? `https://player.autoembed.cc/embed/tv/${targetId}` 
-          : `https://player.autoembed.cc/embed/movie/${targetId}`,
-
-        // Server 3: Vidsrc CC
-        isSeries 
-          ? `https://vidsrc.cc/v2/embed/tv/${targetId}` 
-          : `https://vidsrc.cc/v2/embed/movie/${targetId}`,
-
-        // Server 4: Trailer Fallback
-        `https://www.youtube.com/embed?search=${encodeURIComponent(movie.nameRu + ' трейлер')}`
-      ];
-
-      return servers[serverIdx % servers.length];
-    }
-
-    // 1 MINIMALISTIC PLAYER ENGINE
+    // VIDSRC HD EMBED BUILDER
     function openPlayer(movie) {
       currentMovie = movie;
-      currentServerIndex = 0;
 
       document.getElementById('modal-title').innerText = movie.nameRu;
       document.getElementById('modal-year').innerText = movie.year || '2024';
-      document.getElementById('modal-genre').innerText = movie.genre || 'HD 1080p';
-      document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн бесплатно в хорошем качестве HD.';
+      document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в плеере Vidsrc HD.';
 
       const iframe = document.getElementById('player-iframe');
-      iframe.src = getStreamUrl(movie, 0);
+      const isSeries = movie.type === 'series';
+      const targetId = movie.imdbId || movie.id;
+
+      // Pure Vidsrc HD stream URL
+      if (isSeries) {
+        iframe.src = `https://vidsrc.to/embed/tv/${targetId}`;
+      } else {
+        iframe.src = `https://vidsrc.to/embed/movie/${targetId}`;
+      }
 
       document.getElementById('player-modal').classList.remove('hidden');
     }
@@ -457,13 +429,6 @@
     function closePlayer() {
       document.getElementById('player-modal').classList.add('hidden');
       document.getElementById('player-iframe').src = '';
-    }
-
-    function toggleServer() {
-      if (!currentMovie) return;
-      currentServerIndex = (currentServerIndex + 1) % 4;
-      const iframe = document.getElementById('player-iframe');
-      iframe.src = getStreamUrl(currentMovie, currentServerIndex);
     }
 
     // FAVORITES
