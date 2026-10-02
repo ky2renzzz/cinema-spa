@@ -422,11 +422,11 @@
       const isSeries = movie.type === 'series';
       const targetId = movie.imdbId || movie.id;
 
-      // Vidsrc HD stream URL
+      // Vidsrc HD clean stream URL
       if (isSeries) {
-        iframe.src = `https://vidsrc.to/embed/tv/${targetId}`;
+        iframe.src = `https://vidsrc.me/embed/tv/${targetId}`;
       } else {
-        iframe.src = `https://vidsrc.to/embed/movie/${targetId}`;
+        iframe.src = `https://vidsrc.me/embed/movie/${targetId}`;
       }
 
       document.getElementById('player-modal').classList.remove('hidden');
