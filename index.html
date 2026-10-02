@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CINEMA — Онлайн Кинотеатр (Vidsrc HD)</title>
-  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в высоком качестве Vidsrc HD.">
+  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в высоком качестве Vidsrc HD без рекламы.">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -20,6 +20,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <script>
+    // Global Ad-Block Trap: Override window.open in parent context
+    window.open = function() {
+      console.log('Blocked popup window attempt');
+      return null;
+    };
+
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -162,7 +168,9 @@
             <div class="flex items-center gap-2 text-xs text-zinc-400">
               <span id="modal-year">2014</span>
               <span>•</span>
-              <span class="text-emerald-400 font-semibold">Плеер Vidsrc HD</span>
+              <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Vidsrc HD (Защита от рекламы и новых вкладок)
+              </span>
             </div>
           </div>
         </div>
@@ -176,7 +184,7 @@
         </div>
       </div>
 
-      <!-- Single Video Player Screen (Strictly Vidsrc HD) -->
+      <!-- Single Video Player Screen (Strict Sandbox Blocks All Popups & New Tabs) -->
       <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
         <iframe 
           id="player-iframe" 
@@ -184,6 +192,7 @@
           class="w-full h-full border-0" 
           allowfullscreen 
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           referrerpolicy="no-referrer"
         ></iframe>
       </div>
@@ -212,7 +221,7 @@
     let favorites = JSON.parse(localStorage.getItem('cinema_favs') || '[]');
     let searchDebounceTimer = null;
 
-    // POPULAR CURATED MOVIES WITH VALID IMDB IDS (FOR 100% VIDSRC COMPATIBILITY)
+    // POPULAR CURATED MOVIES WITH VALID IMDB IDS
     const BASE_MOVIES = [
       { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', type: 'films', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису, коллектив исследователей отправляется сквозь червоточину в путешествие.' },
       { id: 1143242, imdbId: 'tt11126994', nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg'), genre: 'Боевик', type: 'series', description: 'История разворачивается в утопическом Пилтовере и подземном Зауне и рассказывает о становлении двух сестер-чемпионов.' },
@@ -404,7 +413,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // VIDSRC HD EMBED BUILDER
+    // VIDSRC HD EMBED LAUNCHER WITH STRICT POPUP TRAP
     function openPlayer(movie) {
       currentMovie = movie;
 
