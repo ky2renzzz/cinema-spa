@@ -25,6 +25,12 @@
       console.log('Blocked popup ad tab attempt');
       return null;
     };
+    // Refocus parent window if iframe attempts popunder tab creation
+    window.addEventListener('blur', function() {
+      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+        setTimeout(function() { window.focus(); }, 10);
+      }
+    });
     tailwind.config = {
       darkMode: 'class',
       theme: {
