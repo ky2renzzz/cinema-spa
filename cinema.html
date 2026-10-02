@@ -64,7 +64,7 @@
             <input
               type="text"
               id="search-input"
-              placeholder="Поиск любого фильма или сериала..."
+              placeholder="Поиск любых фильмов и сериалов..."
               oninput="handleSearchDebounce(this.value)"
               onfocus="if(this.value.trim()) document.getElementById('search-dropdown').classList.remove('hidden')"
               class="w-full bg-zinc-900 text-zinc-100 text-sm pl-10 pr-9 py-2.5 rounded-xl border border-zinc-800 focus:outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-zinc-500"
@@ -114,7 +114,7 @@
         
         <div class="flex items-center gap-3 pt-2">
           <button id="hero-play-btn" onclick="openHeroMovie()" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-sm font-bold rounded-2xl shadow-xl shadow-red-600/40 flex items-center gap-2 transition-all transform hover:scale-105">
-            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть в HD
+            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть онлайн
           </button>
         </div>
       </div>
@@ -155,9 +155,9 @@
             <i data-lucide="play" class="w-5 h-5 fill-red-500 ml-0.5"></i>
           </div>
           <div class="min-w-0">
-            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Интерстеллар</h3>
+            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Название</h3>
             <div class="flex items-center gap-2 text-xs text-zinc-400">
-              <span id="modal-year">2014</span>
+              <span id="modal-year">2024</span>
               <span>•</span>
               <span id="modal-genre" class="text-zinc-300">Кинопоиск</span>
             </div>
@@ -176,9 +176,9 @@
       <!-- Provider Mirror Switcher Tabs -->
       <div class="bg-zinc-900/90 px-4 py-3 flex items-center justify-between gap-2 border-b border-zinc-800 overflow-x-auto no-scrollbar">
         <div class="flex items-center gap-1.5 min-w-max">
-          <span class="text-xs font-semibold text-zinc-400 mr-1 hidden sm:inline">Выберите источник:</span>
-          <button onclick="switchProvider('kodik')" id="prov-kodik" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white shadow-md shadow-red-600/30">🔥 Плеер 1 (Kodik • Все озвучки)</button>
-          <button onclick="switchProvider('kinobox')" id="prov-kinobox" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 2 (Kinobox)</button>
+          <span class="text-xs font-semibold text-zinc-400 mr-1 hidden sm:inline">Плееры:</span>
+          <button onclick="switchProvider('kinobox')" id="prov-kinobox" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white shadow-md shadow-red-600/30">🔥 Плеер 1 (Kinobox • Все озвучки)</button>
+          <button onclick="switchProvider('kodik')" id="prov-kodik" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 2 (Kodik)</button>
           <button onclick="switchProvider('vidsrc')" id="prov-vidsrc" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 3 (Vidsrc HD)</button>
           <button onclick="switchProvider('alloha')" id="prov-alloha" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 4 (Alloha)</button>
           <button onclick="switchProvider('trailer')" id="prov-trailer" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-amber-400 border border-zinc-800">Трейлер HD</button>
@@ -190,14 +190,14 @@
 
       <!-- Video Player Container -->
       <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
-        <!-- Strictly Sandboxed Iframe (Prevents advertisement popups & top-level redirects) -->
+        <!-- Sandboxed Iframe (Includes allow-popups so player scripts don't crash with "This media is unavailable") -->
         <iframe 
           id="player-iframe" 
           src="" 
           class="w-full h-full border-0" 
           allowfullscreen 
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
           referrerpolicy="no-referrer"
         ></iframe>
       </div>
@@ -206,7 +206,7 @@
       <div class="p-4 bg-zinc-950 text-xs text-zinc-400 flex items-center justify-between gap-2 border-t border-zinc-800">
         <div class="flex items-center gap-2">
           <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
-          <span>Защита от рекламы активна. Озвучки и сезоны доступны внутри плеера. Не открывается? Переключите на Плеер 1–4 выше.</span>
+          <span>Озвучки и сезоны переключаются прямо в плеере. Не загрузилось? Выберите другой плеер выше (1–4).</span>
         </div>
       </div>
 
@@ -263,7 +263,7 @@
               rating: item.ratingKinopoisk || item.ratingImdb || item.rating || 8.0,
               poster: fixPoster(item.posterUrlPreview || item.posterUrl),
               genre: item.genres && item.genres[0] ? item.genres[0].genre : 'Кино',
-              type: item.type === 'TV_SERIES' ? 'series' : 'films',
+              type: item.type === 'TV_SERIES' || item.type === 'MINI_SERIES' || tab === 'series' ? 'series' : 'films',
               description: item.description || 'Смотреть онлайн бесплатно в хорошем HD качестве.'
             }));
           }
@@ -274,14 +274,14 @@
 
       if (catalogMovies.length === 0) {
         catalogMovies = [
-          { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису...' },
-          { id: 4664634, imdbId: 'tt15398776', nameRu: 'Оппенгеймер', year: 2023, rating: 8.2, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4664634.jpg'), genre: 'Драма', description: 'История жизни американского физика Роберта Оппенгеймера...' },
-          { id: 4444572, imdbId: 'tt15239678', nameRu: 'Дюна: Часть вторая', year: 2024, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4444572.jpg'), genre: 'Фантастика', description: 'Герцог Пол Атрейдес объединяется с Чани и фременами...' },
-          { id: 1227954, imdbId: 'tt13443470', nameRu: 'Уэнсдэй', year: 2022, rating: 8.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1227954.jpg'), genre: 'Фэнтези', description: 'Уэнсдэй Аддамс поступает в академию «Невермор»...' },
-          { id: 1143242, imdbId: 'tt11126994', nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg'), genre: 'Боевик', description: 'История разворачивается в утопическом Пилтовере...' },
-          { id: 404900, imdbId: 'tt0903747', nameRu: 'Во все тяжкие', year: 2008, rating: 8.9, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg'), genre: 'Драма', description: 'Учитель химии Уолтер Уайт узнает о смертельном диагнозе...' },
-          { id: 464963, imdbId: 'tt0944947', nameRu: 'Игра престолов', year: 2011, rating: 9.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg'), genre: 'Фэнтези', description: 'Несколько могущественных семейств Вестероса сражаются за Железный трон...' },
-          { id: 301, imdbId: 'tt0133093', nameRu: 'Матрица', year: 1999, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/301.jpg'), genre: 'Фантастика', description: 'Программист Нео узнает страшную правду о том, что окружающая его реальность...' }
+          { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', type: 'films', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису...' },
+          { id: 1143242, imdbId: 'tt11126994', nameRu: 'Аркейн', year: 2021, rating: 8.8, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1143242.jpg'), genre: 'Боевик', type: 'series', description: 'История разворачивается в утопическом Пилтовере...' },
+          { id: 4664634, imdbId: 'tt15398776', nameRu: 'Оппенгеймер', year: 2023, rating: 8.2, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4664634.jpg'), genre: 'Драма', type: 'films', description: 'История жизни американского физика Роберта Оппенгеймера...' },
+          { id: 4444572, imdbId: 'tt15239678', nameRu: 'Дюна: Часть вторая', year: 2024, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/4444572.jpg'), genre: 'Фантастика', type: 'films', description: 'Герцог Пол Атрейдес объединяется с Чани и фременами...' },
+          { id: 1227954, imdbId: 'tt13443470', nameRu: 'Уэнсдэй', year: 2022, rating: 8.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/1227954.jpg'), genre: 'Фэнтези', type: 'series', description: 'Уэнсдэй Аддамс поступает в академию «Невермор»...' },
+          { id: 404900, imdbId: 'tt0903747', nameRu: 'Во все тяжкие', year: 2008, rating: 8.9, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg'), genre: 'Драма', type: 'series', description: 'Учитель химии Уолтер Уайт узнает о смертельном диагнозе...' },
+          { id: 464963, imdbId: 'tt0944947', nameRu: 'Игра престолов', year: 2011, rating: 9.0, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg'), genre: 'Фэнтези', type: 'series', description: 'Несколько могущественных семейств Вестероса сражаются за Железный трон...' },
+          { id: 301, imdbId: 'tt0133093', nameRu: 'Матрица', year: 1999, rating: 8.5, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/301.jpg'), genre: 'Фантастика', type: 'films', description: 'Программист Нео узнает страшную правду о том, что окружающая его реальность...' }
         ];
       }
 
@@ -343,7 +343,7 @@
       dropdown.innerHTML = `
         <div class="p-4 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
           <div class="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          Поиск по фильмотеке Кинопоиска...
+          Поиск по Кинопоиску...
         </div>
       `;
       dropdown.classList.remove('hidden');
@@ -364,6 +364,7 @@
                 year: f.year || '2024',
                 rating: f.rating || '7.5',
                 poster: fixPoster(f.posterUrlPreview || f.posterUrl),
+                type: f.type === 'TV_SERIES' || f.type === 'MINI_SERIES' ? 'series' : 'films',
                 description: f.description || 'Смотреть онлайн бесплатно.'
               }));
             }
@@ -379,7 +380,7 @@
 
         if (results.length > 0) {
           dropdown.innerHTML = results.map(m => `
-            <div onclick="openPlayerFromSearch(${m.id}, '${m.nameRu.replace(/'/g, "\\'")}', '${m.year}', '${m.rating}', '${m.poster}', '${m.imdbId || ''}')" class="p-3 hover:bg-zinc-800 cursor-pointer flex items-center gap-3 transition-colors">
+            <div onclick="openPlayerFromSearch(${m.id}, '${m.nameRu.replace(/'/g, "\\'")}', '${m.year}', '${m.rating}', '${m.poster}', '${m.imdbId || ''}', '${m.type}')" class="p-3 hover:bg-zinc-800 cursor-pointer flex items-center gap-3 transition-colors">
               <img src="${m.poster}" class="w-9 h-13 object-cover rounded bg-zinc-950 flex-shrink-0 poster-img">
               <div class="min-w-0 flex-1">
                 <div class="font-bold text-sm text-white truncate">${m.nameRu}</div>
@@ -403,9 +404,9 @@
       document.getElementById('search-clear-btn').classList.add('hidden');
     }
 
-    function openPlayerFromSearch(id, nameRu, year, rating, poster, imdbId) {
+    function openPlayerFromSearch(id, nameRu, year, rating, poster, imdbId, type) {
       document.getElementById('search-dropdown').classList.add('hidden');
-      openPlayer({ id, imdbId, nameRu, year, rating, poster, description: 'Смотреть онлайн бесплатно в хорошем качестве.' });
+      openPlayer({ id, imdbId, nameRu, year, rating, poster, type, description: 'Смотреть онлайн бесплатно в хорошем качестве.' });
     }
 
     function openPlayerByMovieId(id) {
@@ -418,7 +419,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // MULTI-MIRROR PLAYER SWITCHER (KODIK, KINOBOX, VIDSRC, ALLOHA, TRAILER)
+    // SMART MULTI-MIRROR PLAYER SWITCHER
     function openPlayer(movie) {
       currentMovie = movie;
       document.getElementById('modal-title').innerText = movie.nameRu;
@@ -427,8 +428,8 @@
 
       document.getElementById('player-modal').classList.remove('hidden');
 
-      // Default to Primary CIS Balancer (Kodik)
-      switchProvider('kodik');
+      // Default to Kinobox universal embed engine
+      switchProvider('kinobox');
     }
 
     function closePlayer() {
@@ -453,13 +454,18 @@
 
       const kpId = currentMovie.id;
       const imdbId = currentMovie.imdbId;
+      const isSeries = currentMovie.type === 'series';
 
-      if (prov === 'kodik') {
-        iframe.src = `https://kodik.info/find-player?kinopoisk=${kpId}`;
-      } else if (prov === 'kinobox') {
+      if (prov === 'kinobox') {
         iframe.src = `https://kinobox.in/embed/kp/${kpId}`;
+      } else if (prov === 'kodik') {
+        iframe.src = `https://v1.kodik.info/find-player?kinopoisk=${kpId}`;
       } else if (prov === 'vidsrc') {
-        iframe.src = imdbId ? `https://vidsrc.to/embed/movie/${imdbId}` : `https://vidsrc.to/embed/movie/${kpId}`;
+        if (isSeries) {
+          iframe.src = imdbId ? `https://vidsrc.me/embed/tv/${imdbId}` : `https://vidsrc.me/embed/tv/${kpId}`;
+        } else {
+          iframe.src = imdbId ? `https://vidsrc.me/embed/movie/${imdbId}` : `https://vidsrc.me/embed/movie/${kpId}`;
+        }
       } else if (prov === 'alloha') {
         iframe.src = `https://api.alloha.tv/?token=2b498f3b7d301b7a2d6771d31d0442&kp=${kpId}`;
       } else if (prov === 'trailer') {
@@ -468,7 +474,7 @@
     }
 
     function reloadPlayer() {
-      if (currentMovie) switchProvider('kodik');
+      if (currentMovie) switchProvider('kinobox');
     }
 
     // FAVORITES
