@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CINEMA — Онлайн Кинотеатр Кинопоиск</title>
-  <meta name="description" content="Бесплатный онлайн кинотеатр: фильмотека Кинопоиска, популярное, новинки, выбор озвучки и качества без рекламы и редиректов.">
+  <title>CINEMA — Бесплатный Онлайн Кинотеатр</title>
+  <meta name="description" content="Смотреть фильмы и сериалы онлайн бесплатно в высоком качестве HD.">
   <meta name="referrer" content="no-referrer">
 
   <!-- Tailwind CSS via CDN -->
@@ -54,7 +54,6 @@
           <nav class="hidden md:flex items-center space-x-1">
             <button onclick="switchTab('popular')" id="nav-popular" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold bg-zinc-800 text-white shadow-sm">Популярное</button>
             <button onclick="switchTab('top250')" id="nav-top250" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white">Топ 250</button>
-            <button onclick="switchTab('films')" id="nav-films" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white">Фильмы</button>
             <button onclick="switchTab('series')" id="nav-series" class="px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white">Сериалы</button>
           </nav>
         </div>
@@ -65,7 +64,7 @@
             <input
               type="text"
               id="search-input"
-              placeholder="Поиск любых фильмов и сериалов Кинопоиска..."
+              placeholder="Поиск фильмов и сериалов Кинопоиска..."
               oninput="handleSearchDebounce(this.value)"
               onfocus="if(this.value.trim()) document.getElementById('search-dropdown').classList.remove('hidden')"
               class="w-full bg-zinc-900 text-zinc-100 text-sm pl-10 pr-9 py-2.5 rounded-xl border border-zinc-800 focus:outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-zinc-500"
@@ -105,7 +104,7 @@
       <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-10 max-w-3xl z-10 space-y-4">
         <div class="flex items-center gap-2">
           <span class="px-3 py-1 rounded-md bg-red-600 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Главный хит
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Популярное
           </span>
           <span id="hero-year" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 text-xs font-semibold">2014</span>
           <span id="hero-rating" class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">★ 8.6</span>
@@ -115,7 +114,7 @@
         
         <div class="flex items-center gap-3 pt-2">
           <button id="hero-play-btn" onclick="openHeroMovie()" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-sm font-bold rounded-2xl shadow-xl shadow-red-600/40 flex items-center gap-2 transition-all transform hover:scale-105">
-            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть онлайн
+            <i data-lucide="play" class="w-5 h-5 fill-white"></i> Смотреть в Vidsrc HD
           </button>
         </div>
       </div>
@@ -125,7 +124,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4 mb-6">
       <div class="flex items-center gap-2">
         <i data-lucide="film" class="w-5 h-5 text-red-500"></i>
-        <h2 id="section-title" class="text-2xl font-extrabold text-white">Популярные фильмы Кинопоиска</h2>
+        <h2 id="section-title" class="text-2xl font-extrabold text-white">Каталог фильмов и сериалов</h2>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="genre-filters">
         <button onclick="filterGenre('all')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white" data-genre="all">Все жанры</button>
@@ -133,7 +132,6 @@
         <button onclick="filterGenre('Боевик')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Боевик">Боевик</button>
         <button onclick="filterGenre('Драма')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Драма">Драма</button>
         <button onclick="filterGenre('Комедия')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Комедия">Комедия</button>
-        <button onclick="filterGenre('Приключения')" class="genre-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800" data-genre="Приключения">Приключения</button>
       </div>
     </div>
 
@@ -157,11 +155,13 @@
             <i data-lucide="play" class="w-5 h-5 fill-red-500 ml-0.5"></i>
           </div>
           <div class="min-w-0">
-            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Название фильма</h3>
+            <h3 id="modal-title" class="font-bold text-white text-lg truncate">Интерстеллар</h3>
             <div class="flex items-center gap-2 text-xs text-zinc-400">
-              <span id="modal-year">2024</span>
+              <span id="modal-year">2014</span>
               <span>•</span>
-              <span id="modal-genre" class="text-zinc-300">Кинопоиск</span>
+              <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Плеер Vidsrc HD (Блокировка всплывающих окон)
+              </span>
             </div>
           </div>
         </div>
@@ -175,24 +175,9 @@
         </div>
       </div>
 
-      <!-- CDN Provider Selector (Fallback Tabs) -->
-      <div class="bg-zinc-900/90 px-4 py-3 flex items-center justify-between gap-2 border-b border-zinc-800 overflow-x-auto no-scrollbar">
-        <div class="flex items-center gap-1.5 min-w-max">
-          <span class="text-xs font-semibold text-zinc-400 mr-1 hidden sm:inline">Выберите плеер:</span>
-          <button onclick="switchProvider('kinobox')" id="prov-kinobox" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white shadow-md shadow-red-600/30">🔥 Плеер 1 (Kinobox)</button>
-          <button onclick="switchProvider('vidsrc')" id="prov-vidsrc" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 2 (Vidsrc HD)</button>
-          <button onclick="switchProvider('alloha')" id="prov-alloha" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 3 (Alloha)</button>
-          <button onclick="switchProvider('svcdn')" id="prov-svcdn" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800">Плеер 4 (SvCDN)</button>
-          <button onclick="switchProvider('trailer')" id="prov-trailer" class="prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-amber-400 border border-zinc-800">Трейлер HD</button>
-        </div>
-        <button onclick="reloadPlayer()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white bg-zinc-950 border border-zinc-800" title="Перезагрузить поток">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-        </button>
-      </div>
-
-      <!-- Player Screen Container -->
+      <!-- Video Player Container -->
       <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
-        <!-- Sandboxed Iframe (Blocks popups, popunder redirects to Google & ads) -->
+        <!-- Sandboxed Iframe (NO allow-popups, NO allow-top-navigation -> NO NEW TABS / ADS) -->
         <iframe 
           id="player-iframe" 
           src="" 
@@ -204,16 +189,8 @@
         ></iframe>
       </div>
 
-      <!-- Footer Info -->
-      <div class="p-4 bg-zinc-950 text-xs text-zinc-400 flex items-center justify-between gap-2 border-t border-zinc-800">
-        <div class="flex items-center gap-2">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
-          <span>Защита от рекламы включена. Переключение озвучек и серий доступно прямо в плеере.</span>
-        </div>
-      </div>
-
       <!-- Description -->
-      <div className="p-5 bg-zinc-950 border-t border-zinc-900">
+      <div class="p-5 bg-zinc-950 border-t border-zinc-900">
         <p id="modal-description" class="text-xs text-zinc-300 leading-relaxed line-clamp-3">Описание загружается...</p>
       </div>
 
@@ -237,13 +214,13 @@
     let favorites = JSON.parse(localStorage.getItem('cinema_favs') || '[]');
     let searchDebounceTimer = null;
 
-    // FETCH LIVE TOP MOVIES FROM KINOPOISK ON LOAD
+    // FETCH LIVE MOVIES
     async function loadInitialCatalog(tab = 'popular') {
       const grid = document.getElementById('movie-grid');
       grid.innerHTML = `
         <div class="col-span-full py-20 text-center text-zinc-400 flex flex-col items-center justify-center gap-3">
           <div class="w-10 h-10 border-3 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-sm font-semibold">Загрузка лучших фильмов Кинопоиска...</span>
+          <span class="text-sm font-semibold">Загрузка каталога Кинопоиска...</span>
         </div>
       `;
 
@@ -272,10 +249,9 @@
           }
         }
       } catch (err) {
-        console.warn('API catalog load failed, loading fallback', err);
+        console.warn('API catalog fallback', err);
       }
 
-      // If API fail, load offline fallback
       if (catalogMovies.length === 0) {
         catalogMovies = [
           { id: 258687, imdbId: 'tt0816692', nameRu: 'Интерстеллар', year: 2014, rating: 8.6, poster: fixPoster('https://kinopoiskapiunofficial.tech/images/posters/kp/258687.jpg'), genre: 'Фантастика', description: 'Когда засуха и пыльные бури приводят человечество к продовольственному кризису...' },
@@ -306,15 +282,6 @@
         filtered = filtered.filter(m => m.genre && m.genre.toLowerCase().includes(currentGenre.toLowerCase()));
       }
 
-      if (filtered.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full p-12 text-center bg-zinc-900/40 rounded-3xl border border-zinc-800">
-            <p class="text-zinc-400 text-sm">Фильмы по выбранной категории не найдены.</p>
-          </div>
-        `;
-        return;
-      }
-
       grid.innerHTML = filtered.map(m => {
         const isFav = favorites.includes(m.id);
         return `
@@ -340,7 +307,7 @@
       lucide.createIcons();
     }
 
-    // LIVE GLOBAL SEARCH FOR ALL KINOPOISK MOVIES
+    // SEARCH
     async function handleSearchDebounce(query) {
       clearTimeout(searchDebounceTimer);
       const clearBtn = document.getElementById('search-clear-btn');
@@ -356,7 +323,7 @@
       dropdown.innerHTML = `
         <div class="p-4 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
           <div class="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          Поиск по базе Кинопоиска...
+          Поиск фильма...
         </div>
       `;
       dropdown.classList.remove('hidden');
@@ -377,7 +344,7 @@
                 year: f.year || '2024',
                 rating: f.rating || '7.5',
                 poster: fixPoster(f.posterUrlPreview || f.posterUrl),
-                description: f.description || 'Смотреть онлайн бесплатно.'
+                description: f.description || 'Смотреть онлайн.'
               }));
             }
           }
@@ -431,18 +398,25 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // PLAYER ENGINE INITIALIZATION (KINOBOX / VIDSRC / ALLOHA / SVCDN / TRAILER)
+    // EXCLUSIVE VIDSRC HD PLAYER LAUNCHER
     function openPlayer(movie) {
       currentMovie = movie;
       document.getElementById('modal-title').innerText = movie.nameRu;
       document.getElementById('modal-year').innerText = movie.year || '2024';
-      document.getElementById('modal-genre').innerText = movie.genre || 'Фильм';
-      document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн бесплатно в хорошем качестве HD.';
+      document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в высоком качестве HD.';
+
+      const iframe = document.getElementById('player-iframe');
+      const kpId = movie.id;
+      const imdbId = movie.imdbId;
+
+      // Use Vidsrc HD player URL
+      if (movie.type === 'series') {
+        iframe.src = imdbId ? `https://vidsrc.to/embed/tv/${imdbId}` : `https://vidsrc.to/embed/tv/${kpId}`;
+      } else {
+        iframe.src = imdbId ? `https://vidsrc.to/embed/movie/${imdbId}` : `https://vidsrc.to/embed/movie/${kpId}`;
+      }
 
       document.getElementById('player-modal').classList.remove('hidden');
-
-      // Default to Kinobox unblocked player
-      switchProvider('kinobox');
     }
 
     function closePlayer() {
@@ -450,43 +424,7 @@
       document.getElementById('player-iframe').src = '';
     }
 
-    function switchProvider(prov) {
-      const iframe = document.getElementById('player-iframe');
-
-      // Update active button UI
-      document.querySelectorAll('.prov-btn').forEach(btn => {
-        btn.className = 'prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-950 text-zinc-300 border border-zinc-800';
-      });
-      const activeBtn = document.getElementById(`prov-${prov}`);
-      if (activeBtn) {
-        if (prov === 'trailer') {
-          activeBtn.className = 'prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 text-white shadow-md shadow-amber-600/30';
-        } else {
-          activeBtn.className = 'prov-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-600 text-white shadow-md shadow-red-600/30';
-        }
-      }
-
-      const kpId = currentMovie.id;
-      const imdbId = currentMovie.imdbId;
-
-      if (prov === 'kinobox') {
-        iframe.src = `https://kinobox.in/embed/kp/${kpId}`;
-      } else if (prov === 'vidsrc') {
-        iframe.src = imdbId ? `https://vidsrc.to/embed/movie/${imdbId}` : `https://vidsrc.to/embed/movie/${kpId}`;
-      } else if (prov === 'alloha') {
-        iframe.src = `https://api.alloha.tv/?token=2b498f3b7d301b7a2d6771d31d0442&kp=${kpId}`;
-      } else if (prov === 'svcdn') {
-        iframe.src = `https://2415.svcdn.in/embed/${kpId}`;
-      } else if (prov === 'trailer') {
-        iframe.src = `https://www.youtube.com/embed?search=${encodeURIComponent(currentMovie.nameRu + ' трейлер')}`;
-      }
-    }
-
-    function reloadPlayer() {
-      if (currentMovie) switchProvider('kinobox');
-    }
-
-    // FAVORITES SYSTEM
+    // FAVORITES
     function toggleFavorite(id) {
       if (favorites.includes(id)) {
         favorites = favorites.filter(favId => favId !== id);
@@ -515,7 +453,7 @@
       currentTab = tab;
       currentGenre = 'all';
       
-      ['popular', 'top250', 'films', 'series', 'favorites'].forEach(t => {
+      ['popular', 'top250', 'series', 'favorites'].forEach(t => {
         const btn = document.getElementById(`nav-${t}`);
         if (btn) btn.className = t === tab ? 'px-3.5 py-1.5 rounded-xl text-sm font-semibold bg-zinc-800 text-white shadow-sm' : 'px-3.5 py-1.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white';
       });
@@ -536,7 +474,7 @@
       renderCatalog();
     }
 
-    // INIT ON PAGE LOAD
+    // INIT ON LOAD
     loadInitialCatalog('popular');
     lucide.createIcons();
   </script>
