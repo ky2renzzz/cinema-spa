@@ -418,7 +418,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // SINGLE PURE KINOBOX HD PLAYER (TOP QUALITY • ALL DUBS • SUBTITLES • NO ADS)
+    // SINGLE PURE COLLAPS HD PLAYER (TOP QUALITY 1080p • ALL DUBS • SUBTITLES • NO ADS)
     function openPlayer(movie) {
       currentMovie = movie;
 
@@ -427,17 +427,10 @@
       document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в высоком качестве HD.';
 
       const iframe = document.getElementById('player-iframe');
-      const kpId = movie.id || movie.kinopoiskId;
-      const imdbId = movie.imdbId;
+      const kpId = movie.id || movie.kinopoiskId || 258687;
 
-      // Pure Kinobox HD engine: includes Dubbing (Дубляж, Red Head Sound, HDRezka, LostFilm), Subtitles, 1080p and No Ads
-      if (kpId) {
-        iframe.src = `https://kinobox.in/embed/kp/${kpId}`;
-      } else if (imdbId) {
-        iframe.src = `https://kinobox.in/embed/imdb/${imdbId}`;
-      } else {
-        iframe.src = `https://kinobox.in/embed/kp/258687`;
-      }
+      // Direct Collaps HD stream: Full Dubbings (Дубляж, Red Head Sound, HDRezka, LostFilm), Subtitles, 1080p Full HD
+      iframe.src = `https://kollam.net/embed/kinopoisk/${kpId}`;
 
       document.getElementById('player-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
