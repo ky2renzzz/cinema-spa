@@ -170,7 +170,6 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
               title="Трейлер"
               className="w-full h-full border-0"
               allowFullScreen
-              sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"
               onLoad={() => setIsLoading(false)}
             />
           ) : (
@@ -181,7 +180,6 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
               className="w-full h-full border-0"
               allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
               allowFullScreen
-              sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"
               onLoad={() => setIsLoading(false)}
             />
           )}
