@@ -188,33 +188,7 @@
         </div>
       </div>
 
-      <!-- Adaptive Stream Source Bar -->
-      <div class="px-4 py-2 bg-zinc-900/90 border-b border-zinc-800 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
-        <div class="flex items-center gap-1.5 min-w-max">
-          <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mr-1 hidden sm:inline">Поток:</span>
-          
-          <button onclick="setStreamServer('xyz')" id="srv-xyz" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 scale-105">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-            <span>Сервер 1 (HD Чистый)</span>
-          </button>
-
-          <button onclick="setStreamServer('multi')" id="srv-multi" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800">
-            <i data-lucide="film" class="w-3.5 h-3.5"></i>
-            <span>Сервер 2 (MultiEmbed)</span>
-          </button>
-
-          <button onclick="setStreamServer('2embed')" id="srv-2embed" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800">
-            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-            <span>Сервер 3 (2Embed)</span>
-          </button>
-        </div>
-
-        <button onclick="reloadStream()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 transition-all flex-shrink-0" title="Перезагрузить поток">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-        </button>
-      </div>
-
-      <!-- Single Video Player Screen -->
+      <!-- Single Video Player Screen (VidSrc HD) -->
       <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
         <iframe 
           id="player-iframe" 
@@ -444,61 +418,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // ADAPTIVE MULTI-STREAM ENGINE
-    let currentStream = 'xyz';
-
-    function getStreamUrl(movie, stream) {
-      const isSeries = movie.type === 'series';
-      const targetId = movie.imdbId || movie.id;
-
-      if (stream === 'xyz') {
-        return isSeries 
-          ? `https://vidsrc.xyz/embed/tv?imdb=${targetId}&season=1&episode=1` 
-          : `https://vidsrc.xyz/embed/movie?imdb=${targetId}`;
-      } else if (stream === 'multi') {
-        return isSeries 
-          ? `https://multiembed.mov/?video_id=${targetId}&s=1&e=1` 
-          : `https://multiembed.mov/?video_id=${targetId}&tmdb=1`;
-      } else if (stream === '2embed') {
-        return isSeries 
-          ? `https://www.2embed.cc/embedtv/${targetId}&s=1&e=1` 
-          : `https://www.2embed.cc/embed/${targetId}`;
-      }
-      return `https://vidsrc.xyz/embed/movie?imdb=${targetId}`;
-    }
-
-    function setStreamServer(stream) {
-      currentStream = stream;
-      updateStreamButtonsUI();
-      if (currentMovie) {
-        const iframe = document.getElementById('player-iframe');
-        iframe.src = getStreamUrl(currentMovie, currentStream);
-      }
-    }
-
-    function updateStreamButtonsUI() {
-      const streams = ['xyz', 'multi', '2embed'];
-      streams.forEach(s => {
-        const btn = document.getElementById(`srv-${s}`);
-        if (!btn) return;
-        if (s === currentStream) {
-          btn.className = 'server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 scale-105';
-        } else {
-          btn.className = 'server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800';
-        }
-      });
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function reloadStream() {
-      if (currentMovie) {
-        const iframe = document.getElementById('player-iframe');
-        const src = iframe.src;
-        iframe.src = '';
-        setTimeout(() => { iframe.src = src; }, 100);
-      }
-    }
-
+    // SINGLE MINIMALIST PLAYER (VIDSRC HD ENGINE)
     function openPlayer(movie) {
       currentMovie = movie;
 
@@ -506,10 +426,16 @@
       document.getElementById('modal-year').innerText = movie.year || '2024';
       document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в высоком качестве HD.';
 
-      updateStreamButtonsUI();
-
       const iframe = document.getElementById('player-iframe');
-      iframe.src = getStreamUrl(movie, currentStream);
+      const isSeries = movie.type === 'series';
+      const targetId = movie.imdbId || movie.id;
+
+      // Vidsrc HD clean stream URL
+      if (isSeries) {
+        iframe.src = `https://vidsrc.me/embed/tv/${targetId}`;
+      } else {
+        iframe.src = `https://vidsrc.me/embed/movie/${targetId}`;
+      }
 
       document.getElementById('player-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
