@@ -26,15 +26,24 @@
       return null;
     };
 
-    // Continuous Anti-Defocus Shield: Immediately brings focus back if iframe tries to switch tabs
+    // Continuous Focus Anchor: Reclaims focus back to cinema tab across multiple frames
+    function retainCinemaFocus() {
+      window.focus();
+      if (window.top) window.top.focus();
+      if (window.parent) window.parent.focus();
+    }
+
     window.addEventListener('blur', function() {
       if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-        [0, 10, 30, 60, 120, 250, 500].forEach(function(delay) {
-          setTimeout(function() {
-            window.focus();
-            if (window.top) window.top.focus();
-          }, delay);
-        });
+        for (let i = 0; i <= 20; i++) {
+          setTimeout(retainCinemaFocus, i * 20);
+        }
+      }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden && document.activeElement && document.activeElement.tagName === 'IFRAME') {
+        setTimeout(retainCinemaFocus, 10);
       }
     });
 
