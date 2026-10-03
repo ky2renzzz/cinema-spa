@@ -418,7 +418,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // RELIABLE 1080p HD PLAYER (FULL CATALOG • 100% AVAILABILITY • SUBTITLES • NO CRASH)
+    // RELIABLE 1080p HD PLAYER (FULL CATALOG • ALLOWS IFRAME EMBED • SUBTITLES)
     function openPlayer(movie) {
       currentMovie = movie;
 
@@ -428,13 +428,13 @@
 
       const iframe = document.getElementById('player-iframe');
       const isSeries = movie.type === 'series';
-      const targetId = movie.imdbId || movie.id || movie.kinopoiskId;
+      const targetId = movie.imdbId || movie.id;
 
-      // VidSrc v2 Global Engine: 100% working stream for all movies and series
+      // vidsrc.me allows iframe embedding without X-Frame-Options block
       if (isSeries) {
-        iframe.src = `https://vidsrc.cc/v2/embed/tv/${targetId}/1/1`;
+        iframe.src = `https://vidsrc.me/embed/tv/${targetId}`;
       } else {
-        iframe.src = `https://vidsrc.cc/v2/embed/movie/${targetId}`;
+        iframe.src = `https://vidsrc.me/embed/movie/${targetId}`;
       }
 
       document.getElementById('player-modal').classList.remove('hidden');
