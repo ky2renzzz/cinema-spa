@@ -418,7 +418,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // SINGLE PURE COLLAPS HD PLAYER (TOP QUALITY 1080p • ALL DUBS • SUBTITLES • NO ADS)
+    // SINGLE PURE VIDLINK HD PLAYER (TOP QUALITY 1080p • SUBTITLES • NO ADS • GLOBAL CDN)
     function openPlayer(movie) {
       currentMovie = movie;
 
@@ -427,10 +427,15 @@
       document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в высоком качестве HD.';
 
       const iframe = document.getElementById('player-iframe');
-      const kpId = movie.id || movie.kinopoiskId || 258687;
+      const isSeries = movie.type === 'series';
+      const targetId = movie.imdbId || movie.id || movie.kinopoiskId;
 
-      // Direct Collaps HD stream: Full Dubbings (Дубляж, Red Head Sound, HDRezka, LostFilm), Subtitles, 1080p Full HD
-      iframe.src = `https://kollam.net/embed/kinopoisk/${kpId}`;
+      // Clean VidLink HD stream: 1080p, Subtitles, Episode selector, No popunder ads
+      if (isSeries) {
+        iframe.src = `https://vidlink.pro/tv/${targetId}/1/1?primaryColor=e50914&autoplay=false`;
+      } else {
+        iframe.src = `https://vidlink.pro/movie/${targetId}?primaryColor=e50914&autoplay=false`;
+      }
 
       document.getElementById('player-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
