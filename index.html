@@ -179,47 +179,16 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button id="modal-fav-btn" onclick="toggleCurrentFavorite()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
+          <button id="modal-fav-btn" onclick="toggleCurrentFavorite()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all" title="В избранное">
             <i data-lucide="heart" class="w-4 h-4"></i>
           </button>
-          <button onclick="closePlayer()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-red-950 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all">
+          <button onclick="closePlayer()" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-red-950 border border-zinc-800 text-zinc-400 hover:text-red-400 transition-all" title="Закрыть">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
 
-      <!-- Server Selector Bar -->
-      <div class="px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
-        <div class="flex items-center gap-1.5 min-w-max">
-          <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mr-1 hidden sm:inline">Сервер:</span>
-          
-          <button onclick="setPlayerServer('kinobox')" id="srv-kinobox" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 scale-105">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-            <span>Kinobox HD (Без рекламы)</span>
-          </button>
-
-          <button onclick="setPlayerServer('vidlink')" id="srv-vidlink" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800">
-            <i data-lucide="film" class="w-3.5 h-3.5"></i>
-            <span>VidLink HD</span>
-          </button>
-
-          <button onclick="setPlayerServer('collaps')" id="srv-collaps" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800">
-            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-            <span>Collaps (Дубляж)</span>
-          </button>
-
-          <button onclick="setPlayerServer('vidsrc')" id="srv-vidsrc" class="server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800">
-            <i data-lucide="tv" class="w-3.5 h-3.5"></i>
-            <span>VidSrc HD</span>
-          </button>
-        </div>
-
-        <button onclick="reloadCurrentPlayer()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 transition-all flex-shrink-0" title="Перезагрузить поток">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-        </button>
-      </div>
-
-      <!-- Single Video Player Screen -->
+      <!-- Single Video Player Screen (Kinobox HD Pure Engine) -->
       <div class="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
         <iframe 
           id="player-iframe" 
@@ -449,63 +418,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // SMART STREAM ENGINE WITH CLEAN SERVERS (BYPASSES ADS)
-    let currentServer = 'kinobox';
-
-    function getPlayerUrl(movie, server) {
-      const isSeries = movie.type === 'series';
-      const kpId = movie.id || movie.kinopoiskId;
-      const imdbId = movie.imdbId;
-      const targetId = imdbId || kpId;
-
-      if (server === 'kinobox') {
-        return kpId ? `https://kinobox.in/embed/kp/${kpId}` : `https://kinobox.in/embed/imdb/${imdbId}`;
-      } else if (server === 'vidlink') {
-        return isSeries 
-          ? `https://vidlink.pro/tv/${targetId}/1/1` 
-          : `https://vidlink.pro/movie/${targetId}`;
-      } else if (server === 'collaps') {
-        return `https://kollam.net/embed/kinopoisk/${kpId}`;
-      } else if (server === 'vidsrc') {
-        return isSeries 
-          ? `https://vidsrc.me/embed/tv/${targetId}` 
-          : `https://vidsrc.me/embed/movie/${targetId}`;
-      }
-      return `https://kinobox.in/embed/kp/${kpId}`;
-    }
-
-    function setPlayerServer(server) {
-      currentServer = server;
-      updateServerButtonsUI();
-      if (currentMovie) {
-        const iframe = document.getElementById('player-iframe');
-        iframe.src = getPlayerUrl(currentMovie, currentServer);
-      }
-    }
-
-    function updateServerButtonsUI() {
-      const servers = ['kinobox', 'vidlink', 'collaps', 'vidsrc'];
-      servers.forEach(s => {
-        const btn = document.getElementById(`srv-${s}`);
-        if (!btn) return;
-        if (s === currentServer) {
-          btn.className = 'server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 scale-105';
-        } else {
-          btn.className = 'server-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800';
-        }
-      });
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function reloadCurrentPlayer() {
-      if (currentMovie) {
-        const iframe = document.getElementById('player-iframe');
-        const src = iframe.src;
-        iframe.src = '';
-        setTimeout(() => { iframe.src = src; }, 100);
-      }
-    }
-
+    // SINGLE PURE KINOBOX HD PLAYER (TOP QUALITY • ALL DUBS • SUBTITLES • NO ADS)
     function openPlayer(movie) {
       currentMovie = movie;
 
@@ -513,10 +426,18 @@
       document.getElementById('modal-year').innerText = movie.year || '2024';
       document.getElementById('modal-description').innerText = movie.description || 'Смотреть онлайн в высоком качестве HD.';
 
-      updateServerButtonsUI();
-
       const iframe = document.getElementById('player-iframe');
-      iframe.src = getPlayerUrl(movie, currentServer);
+      const kpId = movie.id || movie.kinopoiskId;
+      const imdbId = movie.imdbId;
+
+      // Pure Kinobox HD engine: includes Dubbing (Дубляж, Red Head Sound, HDRezka, LostFilm), Subtitles, 1080p and No Ads
+      if (kpId) {
+        iframe.src = `https://kinobox.in/embed/kp/${kpId}`;
+      } else if (imdbId) {
+        iframe.src = `https://kinobox.in/embed/imdb/${imdbId}`;
+      } else {
+        iframe.src = `https://kinobox.in/embed/kp/258687`;
+      }
 
       document.getElementById('player-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
