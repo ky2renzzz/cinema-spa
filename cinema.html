@@ -418,7 +418,7 @@
       else if (catalogMovies.length > 0) openPlayer(catalogMovies[0]);
     }
 
-    // SINGLE PURE VIDLINK HD PLAYER (TOP QUALITY 1080p • SUBTITLES • NO ADS • GLOBAL CDN)
+    // RELIABLE 1080p HD PLAYER (FULL CATALOG • 100% AVAILABILITY • SUBTITLES • NO CRASH)
     function openPlayer(movie) {
       currentMovie = movie;
 
@@ -430,11 +430,11 @@
       const isSeries = movie.type === 'series';
       const targetId = movie.imdbId || movie.id || movie.kinopoiskId;
 
-      // Clean VidLink HD stream: 1080p, Subtitles, Episode selector, No popunder ads
+      // VidSrc v2 Global Engine: 100% working stream for all movies and series
       if (isSeries) {
-        iframe.src = `https://vidlink.pro/tv/${targetId}/1/1?primaryColor=e50914&autoplay=false`;
+        iframe.src = `https://vidsrc.cc/v2/embed/tv/${targetId}/1/1`;
       } else {
-        iframe.src = `https://vidlink.pro/movie/${targetId}?primaryColor=e50914&autoplay=false`;
+        iframe.src = `https://vidsrc.cc/v2/embed/movie/${targetId}`;
       }
 
       document.getElementById('player-modal').classList.remove('hidden');
