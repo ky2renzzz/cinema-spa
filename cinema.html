@@ -20,30 +20,45 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <script>
-    // Intercept and block advertisement popups/tabs
+    // Universal AdShield: Blocks window.open on top frame
     window.open = function() {
-      console.warn('[AdShield] Blocked popup ad tab attempt');
+      console.warn('[AdShield] Blocked popup ad window creation');
       return null;
     };
 
-    // Continuous Focus Anchor: Reclaims focus back to cinema tab across multiple frames
-    function retainCinemaFocus() {
-      window.focus();
-      if (window.top) window.top.focus();
-      if (window.parent) window.parent.focus();
+    // Cross-Engine Focus Anchor (Chrome, Edge, Safari, Firefox, Opera, Mobile)
+    function lockCinemaFocus() {
+      try {
+        window.focus();
+        if (window.top && window.top !== window) window.top.focus();
+        if (window.parent && window.parent !== window) window.parent.focus();
+      } catch (e) {}
     }
 
+    // 1. Continuous blur intercept (when iframe triggers popunder)
     window.addEventListener('blur', function() {
-      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-        for (let i = 0; i <= 20; i++) {
-          setTimeout(retainCinemaFocus, i * 20);
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'IFRAME' || activeEl.id === 'player-iframe')) {
+        for (let i = 0; i <= 30; i++) {
+          setTimeout(lockCinemaFocus, i * 15);
         }
       }
     });
 
+    // 2. Visibility loss anchor
     document.addEventListener('visibilitychange', function() {
-      if (document.hidden && document.activeElement && document.activeElement.tagName === 'IFRAME') {
-        setTimeout(retainCinemaFocus, 10);
+      if (document.visibilityState === 'hidden') {
+        for (let i = 0; i <= 20; i++) {
+          setTimeout(lockCinemaFocus, i * 20);
+        }
+      }
+    });
+
+    // 3. Pointer capture anchor: re-anchor immediately after clicking
+    window.addEventListener('pointerup', function() {
+      const modal = document.getElementById('player-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        setTimeout(lockCinemaFocus, 30);
       }
     });
 
